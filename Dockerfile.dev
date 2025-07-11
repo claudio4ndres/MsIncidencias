@@ -1,0 +1,20 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copiar archivos de dependencias
+COPY package*.json ./
+
+# Instalar todas las dependencias (incluyendo devDependencies)
+# Configurar para omitir husky en contenedores
+ENV HUSKY=0
+RUN npm ci
+
+# Copiar código fuente
+COPY . .
+
+# Exponer el puerto
+EXPOSE 3000
+
+# Comando de inicio para desarrollo
+CMD ["npm", "run", "dev"]

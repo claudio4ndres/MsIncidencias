@@ -1,0 +1,26 @@
+import { DataSource } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
+import { Calendar } from '../entities/calendar.entity';
+import { CompanyEntity } from '../entities/company.entity';
+import { EmployeeEntity } from '../entities/employee.entity';
+import { IncidentEntity } from '../entities/incident.entity';
+import { MovementEntity } from '../entities/movement.entity';
+import { MsOllamaniEntity } from '../entities/ms-ollamani.entity';
+import { OfficeEntity } from '../entities/office.entity';
+import { UserEntity } from '../entities/user.entity';
+import { UserAccessEntity } from '../entities/user-access.entity';
+export declare const createTypeOrmConfig: (configService: ConfigService) => {
+    type: "mysql";
+    host: any;
+    port: number;
+    username: any;
+    password: any;
+    database: any;
+    entities: (typeof MsOllamaniEntity | typeof Calendar | typeof IncidentEntity | typeof MovementEntity | typeof EmployeeEntity | typeof OfficeEntity | typeof UserEntity | typeof UserAccessEntity | typeof CompanyEntity)[];
+    migrations: string[];
+    synchronize: boolean;
+    logging: boolean;
+    migrationsRun: boolean;
+    migrationsTableName: string;
+};
+export declare const AppDataSource: DataSource;

@@ -1,0 +1,40 @@
+. Migración de base de datos
+•  Creé la tabla user_access con id auto-incremental
+•  Incluí todas las relaciones necesarias (foreign keys)
+•  Agregué índices para optimizar las consultas
+
+2. Validación de acceso en todos los métodos
+•  findAll: Filtra movimientos por oficinas accesibles al usuario
+•  findOne: Verifica acceso antes de mostrar un movimiento específico
+•  create: Valida que el usuario tenga acceso a la oficina del empleado y persiste el acceso en user_access
+•  update: Verifica acceso antes de permitir modificaciones
+•  remove: Verifica acceso antes de eliminar
+•  findByEmployee: Filtra por acceso a oficinas
+•  findByIncident: Filtra por acceso a oficinas
+•  findByStatus: Filtra por acceso a oficinas
+•  findByDateRange: Filtra por acceso a oficinas
+•  search: Incluye filtros de acceso en búsquedas avanzadas
+•  getRecentMovements: Filtra movimientos recientes por acceso
+•  getStats: Calcula estadísticas solo para oficinas accesibles
+
+3. Funcionalidades clave implementadas
+
+#### Método ensureUserAccess
+•  Verifica si el usuario ya tiene acceso registrado
+•  Si no existe, crea un nuevo registro en user_access
+•  Se ejecuta automáticamente al crear movimientos
+
+#### Integración con UserAccessService
+•  Usa buildOfficeFilter para crear filtros de TypeORM
+•  Valida acceso con hasAccessToOffice
+•  Maneja casos de usuarios sin acceso definido
+
+#### Conversión de tokens
+•  Convierte IAccessToken a UserSessionDto en el controller
+•  Maneja la diferencia entre sub (IAccessToken) e id (UserSessionDto)
+
+4. Flujo de funcionamiento
+
+1. Al crear un movimiento: El sistema verifica que el usuario tenga acceso a la oficina del empleado y automáticamente registra este acceso en user_access
+2. Al consultar movimientos: Todos los métodos aplican automáticamente filtros basados en las oficinas a las que el usuario tiene acceso
+3. Control de acceso dinámico: Los permisos se gestionan a través de la tabla user_access, permitiendo asignar accesos granulares por usuario, compañía y oficina
