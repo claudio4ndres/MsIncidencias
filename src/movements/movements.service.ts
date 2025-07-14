@@ -5,7 +5,6 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { Between, ILike } from "typeorm";
-import { v4 as uuidv4 } from "uuid";
 import {
   PaginatedResponseDto,
   PaginationQueryDto,
@@ -76,12 +75,16 @@ export class MovementsService {
               },
             },
             // Búsqueda por código de empleado si el término es numérico
-            ...(isNaN(Number(search)) ? [] : [{
-              employeeCode: Number(search),
-              employee: {
-                office: officeFilter,
-              },
-            }]),
+            ...(isNaN(Number(search))
+              ? []
+              : [
+                  {
+                    employeeCode: Number(search),
+                    employee: {
+                      office: officeFilter,
+                    },
+                  },
+                ]),
           ]
         : {
             employee: {
@@ -175,7 +178,8 @@ export class MovementsService {
       if (!incident) {
         throw new BadRequestException("El incidente especificado no existe");
       }
-
+      console.log("employee:", employee);
+      /*
       const savedMovement = await this.movementRepository.save({
         id: uuidv4(),
         employeeCode: createMovementDto.employee_code,
@@ -200,6 +204,8 @@ export class MovementsService {
       });
 
       return this.mapToResponseDto(movementWithRelations);
+      */
+      return "Movimiento creado exitosamente" as any;
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;

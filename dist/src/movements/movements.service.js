@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MovementsService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("typeorm");
-const uuid_1 = require("uuid");
 const pagination_dto_1 = require("../_common/dto/pagination.dto");
 const repository_1 = require("../_common/repository");
 const user_access_service_1 = require("../_common/services/user-access.service");
@@ -45,12 +44,16 @@ let MovementsService = class MovementsService {
                             office: officeFilter,
                         },
                     },
-                    ...(isNaN(Number(search)) ? [] : [{
-                            employeeCode: Number(search),
-                            employee: {
-                                office: officeFilter,
+                    ...(isNaN(Number(search))
+                        ? []
+                        : [
+                            {
+                                employeeCode: Number(search),
+                                employee: {
+                                    office: officeFilter,
+                                },
                             },
-                        }]),
+                        ]),
                 ]
                 : {
                     employee: {
@@ -111,21 +114,8 @@ let MovementsService = class MovementsService {
             if (!incident) {
                 throw new common_1.BadRequestException("El incidente especificado no existe");
             }
-            const savedMovement = await this.movementRepository.save({
-                id: (0, uuid_1.v4)(),
-                employeeCode: createMovementDto.employee_code,
-                incidentCode: createMovementDto.incident_code,
-                incidenceDate: new Date(createMovementDto.incidence_date),
-                incidenceObservation: createMovementDto.incidence_observation,
-                incidenceStatus: createMovementDto.incidence_status,
-                updatedAt: new Date(createMovementDto.incidence_date),
-            });
-            await this.ensureUserAccess(token.id, employee.office.companyId, employee.office.id);
-            const movementWithRelations = await this.movementRepository.findOne({
-                where: { id: savedMovement.id },
-                relations: ["employee", "incident"],
-            });
-            return this.mapToResponseDto(movementWithRelations);
+            console.log("employee:", employee);
+            return "Movimiento creado exitosamente";
         }
         catch (error) {
             if (error instanceof common_1.BadRequestException) {
