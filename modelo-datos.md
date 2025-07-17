@@ -61,17 +61,27 @@ Este sistema de incidencias maneja la gestión de empleados, incidencias y movim
 │ • updated_at    │     └─────────────────┘
 └─────────────────┘
 
-┌─────────────────┐     ┌─────────────────┐
-│    Calendar     │     │   Ms_Ollamani   │
-│                 │     │                 │
-│ • id (PK)       │     │ • id (PK)       │
-│ • month         │     │ • nombre        │
-│ • period        │     │ • descripcion   │
-│ • range         │     │ • activo        │
-│ • incident_sub  │     │ • fecha_creacion│
-│ • process       │     │ • fecha_actual  │
-│ • policy_gen    │     └─────────────────┘
-│ • payment       │
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│    Calendar     │     │   Ms_Ollamani   │     │   Approvals     │
+│                 │     │                 │     │                 │
+│ • id (PK)       │     │ • id (PK)       │     │ • id (PK)       │
+│ • month         │     │ • nombre        │     │ • approval_type │
+│ • period        │     │ • descripcion   │     │ • status        │
+│ • range         │     │ • activo        │     │ • reason        │
+│ • incident_sub  │     │ • fecha_creacion│     │ • requested_by  │
+│ • process       │     │ • fecha_actual  │     │ • movement_id   │
+│ • policy_gen    │     └─────────────────┘     │ • created_at    │
+│ • payment       │                             │ • updated_at    │
+└─────────────────┘                             └─────────────────┘
+
+┌─────────────────┐
+│    Holidays     │
+│                 │
+│ • id (PK)       │
+│ • fecha         │
+│ • celebracion   │
+│ • dia_semana    │
+│ • active        │
 └─────────────────┘
 ```
 
@@ -129,6 +139,7 @@ Este sistema de incidencias maneja la gestión de empleados, incidencias y movim
 | employee_name | VARCHAR(191) | Nombre del empleado |
 | employee_type | VARCHAR(191) | Tipo de empleado |
 | employee_status | INT | Estado (1=activo, 0=inactivo) |
+| weekly_rest_day | TINYINT | Día de descanso semanal (0=Domingo, 1=Lunes, ..., 6=Sábado) |
 | created_at | TIMESTAMP | Fecha de creación |
 | updated_at | TIMESTAMP | Fecha de actualización |
 
@@ -270,6 +281,53 @@ Este sistema de incidencias maneja la gestión de empleados, incidencias y movim
 - `idx_ms_ollamani_nombre` en `nombre`
 - `idx_ms_ollamani_fecha_creacion` en `fecha_creacion`
 
+### 10. Approvals (Aprobaciones)
+**Tabla:** `approvals`
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| id | UUID | Identificador único (PK) |
+| approval_type | ENUM | Tipo de aprobación (dia_devuelto, movimiento_periodo_anterior, excepcion_especial) |
+| status | ENUM | Estado (pending, approved, rejected) |
+| reason | TEXT | Razón de la solicitud |
+| comments | TEXT | Comentarios adicionales |
+| requested_by | VARCHAR(191) | ID del usuario solicitante (FK) |
+| movement_id | VARCHAR(191) | ID del movimiento (FK) |
+| related_movement_id | VARCHAR(191) | ID del movimiento relacionado (FK) |
+| approvals | JSON | Array de aprobaciones |
+| required_approvals | INT | Número de aprobaciones requeridas (default: 2) |
+| final_approved_at | TIMESTAMP | Fecha de aprobación final |
+| created_at | TIMESTAMP | Fecha de creación |
+| updated_at | TIMESTAMP | Fecha de actualización |
+
+**Relaciones:**
+- Muchos a uno con `Users` (requester)
+- Muchos a uno con `Movements` (movement)
+- Muchos a uno con `Movements` (related_movement)
+
+**Características especiales:**
+- Soporte para múltiples niveles de aprobación
+- Almacenamiento de historial de aprobaciones en formato JSON
+- Métodos auxiliares para validar estado de aprobación
+
+### 11. Holidays (Días Festivos)
+**Tabla:** `holidays`
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| id | INT | Identificador único (PK, auto-increment) |
+| fecha | VARCHAR(50) | Fecha del día festivo |
+| celebracion | VARCHAR(255) | Nombre de la celebración |
+| dia_semana | VARCHAR(20) | Día de la semana |
+| active | BOOLEAN | Estado (true=activo, false=inactivo) |
+
+**Relaciones:**
+- Entidad independiente (sin relaciones FK)
+
+**Características especiales:**
+- Gestión de calendario de días festivos
+- Control de activación/desactivación de festividades
+
 ## Características del Modelo
 
 ### Integridad Referencial
@@ -293,14 +351,18 @@ Este sistema de incidencias maneja la gestión de empleados, incidencias y movim
 - **Soft Delete**: Control de estado mediante campos de status
 - **Código Único**: Códigos únicos para empleados e incidencias
 - **Control de Acceso**: Tabla intermedia para gestión de permisos por usuario/compañía/oficina
+- **Workflow de Aprobaciones**: Sistema de aprobaciones multi-nivel con historial JSON
+- **Calendario Laboral**: Gestión de días festivos y períodos críticos
 
 ## Flujo de Negocio
 
 1. **Estructura Organizacional**: Companies → Offices → Employees
 2. **Gestión de Incidencias**: Incidents (catálogo) → Movements (registros específicos)
 3. **Control de Acceso**: Users → User_Access → Companies/Offices
-4. **Calendario**: Gestión de períodos y fechas críticas
-5. **Elementos Ollamani**: Funcionalidad específica del sistema
+4. **Proceso de Aprobaciones**: Movements → Approvals → Users (multi-nivel)
+5. **Calendario**: Gestión de períodos y fechas críticas
+6. **Días Festivos**: Gestión de calendario laboral
+7. **Elementos Ollamani**: Funcionalidad específica del sistema
 
 ## Consideraciones Técnicas
 

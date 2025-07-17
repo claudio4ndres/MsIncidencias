@@ -11,10 +11,19 @@ import {
   MovementRepository,
   UserAccessEntity,
   UserAccessRepository,
+  Calendar,
+  CalendarRepository,
+  Holiday,
+  HolidayRepository,
+  ApprovalEntity,
+  ApprovalRepository,
 } from "../_common/repository";
 import { UserAccessService } from "../_common/services/user-access.service";
 import { MovementsController } from "./movements.controller";
 import { MovementsService } from "./movements.service";
+import { MovementValidationService } from "./services/movement-validation.service";
+import { ApprovalService } from "./services/approval.service";
+import { ApprovalController } from "./controllers/approval.controller";
 
 @Module({
   imports: [
@@ -23,17 +32,25 @@ import { MovementsService } from "./movements.service";
       EmployeeEntity,
       IncidentEntity,
       UserAccessEntity,
+      Calendar,
+      Holiday,
+      ApprovalEntity,
     ]),
     JwtModule.register({}),
   ],
-  controllers: [MovementsController],
+  controllers: [MovementsController, ApprovalController],
   providers: [
     MovementsService,
     MovementRepository,
     EmployeeRepository,
     IncidentRepository,
     UserAccessRepository,
+    CalendarRepository,
+    HolidayRepository,
+    ApprovalRepository,
     UserAccessService,
+    MovementValidationService,
+    ApprovalService,
     JwtAuthGuard,
   ],
   exports: [MovementsService],

@@ -1,4 +1,59 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsNotEmpty } from 'class-validator';
+
+export class GenerateCVVDto {
+  @ApiProperty({ 
+    description: 'Período de nómina',
+    example: '2025001' 
+  })
+  @IsString()
+  @IsNotEmpty()
+  period: string;
+}
+
+export class GenerateCVVResponseDto {
+  @ApiProperty({ 
+    description: 'Mensaje de respuesta',
+    example: 'CVV generado exitosamente' 
+  })
+  message: string;
+
+  @ApiProperty({ 
+    description: 'Ruta completa del archivo generado',
+    example: '/path/to/temp/CVV-2025001-20250117.csv' 
+  })
+  filePath: string;
+
+  @ApiProperty({ 
+    description: 'Nombre del archivo generado',
+    example: 'CVV-2025001-20250117.csv' 
+  })
+  fileName: string;
+
+  @ApiProperty({ 
+    description: 'Período procesado',
+    example: '2025001' 
+  })
+  period: string;
+
+  @ApiProperty({ 
+    description: 'Total de movimientos incluidos en el CSV',
+    example: 150 
+  })
+  totalMovimientos: number;
+
+  @ApiProperty({ 
+    description: 'Rango de fechas procesado',
+    example: {
+      desde: '2024-12-26',
+      hasta: '2025-01-02'
+    }
+  })
+  rangoFechas: {
+    desde: string;
+    hasta: string;
+  };
+}
 
 export class PeriodResponseDto {
   @ApiProperty({ 

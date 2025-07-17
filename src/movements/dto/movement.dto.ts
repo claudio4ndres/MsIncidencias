@@ -43,6 +43,14 @@ export class CreateMovementDto {
   @IsNumber({}, { message: 'El estado debe ser un número' })
   @IsOptional()
   incidence_status?: number = 1;
+
+  @ApiProperty({
+    description: 'Período de nómina',
+    example: '2025010'
+  })
+  @IsString({ message: 'El período debe ser una cadena de texto' })
+  @IsNotEmpty({ message: 'El período es requerido' })
+  period: string;
 }
 
 export class UpdateMovementDto extends PartialType(CreateMovementDto) {

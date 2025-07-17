@@ -54,6 +54,15 @@ export class EmployeeEntity {
   })
   employeeStatus: number;
 
+  @Column({ 
+    name: 'weekly_rest_day',
+    type: 'tinyint', 
+    nullable: false,
+    default: 0,
+    comment: 'Día de descanso semanal (0=Domingo, 1=Lunes, 2=Martes, 3=Miércoles, 4=Jueves, 5=Viernes, 6=Sábado)'
+  })
+  weeklyRestDay: number;
+
   @CreateDateColumn({
     name: 'created_at',
     type: 'timestamp',

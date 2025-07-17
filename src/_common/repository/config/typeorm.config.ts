@@ -9,6 +9,8 @@ import { MsOllamaniEntity } from '../entities/ms-ollamani.entity';
 import { OfficeEntity } from '../entities/office.entity';
 import { UserEntity } from '../entities/user.entity';
 import { UserAccessEntity } from '../entities/user-access.entity';
+import { Holiday } from '../entities/holiday.entity';
+import { ApprovalEntity } from '../entities/approval.entity';
 
 export const createTypeOrmConfig = (configService: ConfigService) => ({
   type: 'mysql' as const,
@@ -26,7 +28,9 @@ export const createTypeOrmConfig = (configService: ConfigService) => ({
     MsOllamaniEntity,
     OfficeEntity,
     UserEntity,
-    UserAccessEntity
+    UserAccessEntity,
+    Holiday,
+    ApprovalEntity
   ],
   migrations: [__dirname + '/../migrations/*.ts'],
   synchronize: false,
@@ -51,7 +55,9 @@ export const AppDataSource = new DataSource({
     MsOllamaniEntity,
     OfficeEntity,
     UserEntity,
-    UserAccessEntity
+    UserAccessEntity,
+    Holiday,
+    ApprovalEntity
   ],
   migrations: [__dirname + '/../migrations/*.ts'],
   synchronize: false,

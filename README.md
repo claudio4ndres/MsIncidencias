@@ -1,6 +1,6 @@
-# MS Arquetipo Dale - NestJS
+# MS incidencias - NestJS
 
-Un microservicio arquetipo desarrollado con NestJS, TypeScript y TypeORM que sirve como plantilla base para el desarrollo de microservicios empresariales.
+Un microservicio desarrollado con NestJS, TypeScript y TypeORM que sirve como plantilla base para el desarrollo de microservicios empresariales.
 
 ## 📋 Tabla de Contenidos
 
@@ -90,7 +90,7 @@ JWT_SECRET=tu-clave-secreta-muy-segura
 JWT_EXPIRES_IN=1h
 
 # Configuración de microservicios
-MS_NOMBRE_SM=ms-arquetipo-dale
+MS_NOMBRE_SM=ms-arquetipo-incidencias
 
 # Configuración de Redis (opcional)
 REDIS_HOST=localhost

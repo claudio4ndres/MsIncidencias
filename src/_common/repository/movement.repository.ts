@@ -51,6 +51,33 @@ export class MovementRepository {
     });
   }
 
+  async findByDateRangeForCSV(startDate: Date, endDate: Date): Promise<MovementEntity[]> {
+    return this.movementEntity
+      .createQueryBuilder('movement')
+      .leftJoin('movement.employee', 'employee')
+      .leftJoin('movement.incident', 'incident')
+      .select([
+        'movement.id',
+        'movement.employeeCode',
+        'movement.incidentCode',
+        'movement.incidenceDate',
+        'movement.incidenceObservation',
+        'movement.incidenceStatus',
+        'employee.employeeCode',
+        'employee.employeeName',
+        'employee.employeeType',
+        'employee.employeeStatus',
+        'incident.incidentCode',
+        'incident.incidentName',
+        'incident.incidentStatus'
+      ])
+      .where('movement.incidenceDate BETWEEN :startDate AND :endDate', {
+        startDate,
+        endDate
+      })
+      .getMany();
+  }
+
   async delete(payload: FindOptionsWhere<MovementEntity>): Promise<DeleteResult> {
     return this.movementEntity.delete(payload);
   }

@@ -1,8 +1,10 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { CalendarRepository } from "@src/_common/repository/calendar.repository";
 import { MovementRepository } from "@src/_common/repository/movement.repository";
+import * as fs from "fs";
 import moment from "moment";
 import "moment/locale/es-mx";
+import * as path from "path";
 import { PeriodResponseDto } from "./dto/periods.dto";
 
 // Configurar moment para usar locale español mexicano
@@ -171,5 +173,133 @@ export class PeriodsService {
       total: movimientos.length,
       movimientos,
     };
+  }
+
+  async generateCVV(period: string) {
+    console.log("period", period);
+    const calendar = await this.calendarRepository.findByPeriod(period);
+    if (!calendar) {
+      throw new NotFoundException(`No se encontró el periodo: ${period}`);
+    }
+    console.log("calendar", calendar);
+    // Obtener el rango de fechas del calendario
+    const range = calendar.range;
+    console.log("Range original:", range);
+
+    // Extraer fechas del range usando la misma lógica que findMovementsByPeriod
+    const fechas = range.match(/(\d{1,2})\s+([a-zA-Záéíóú]+)/g);
+    if (!fechas || fechas.length === 0)
+      throw new NotFoundException(`Range inválido: ${range}`);
+
+    console.log("Fechas extraídas:", fechas);
+
+    const refYear = calendar.incidentSubmission.getFullYear();
+    const startDate = moment(`${fechas[0]}`, "D MMMM", "es-mx").year(refYear);
+    const endDate =
+      fechas.length > 1
+        ? moment(`${fechas[1]}`, "D MMMM", "es-mx").year(refYear)
+        : moment(`${fechas[0]}`, "D MMMM", "es-mx").year(refYear);
+
+    console.log("Fechas parseadas:");
+    console.log("StartDate:", startDate.format("YYYY-MM-DD"));
+    console.log("EndDate before adjustment:", endDate.format("YYYY-MM-DD"));
+
+    // Ajustar años si hay cruce entre diciembre y enero
+    if (endDate.isBefore(startDate)) {
+      endDate.add(1, "year");
+      console.log(
+        "EndDate after year adjustment:",
+        endDate.format("YYYY-MM-DD")
+      );
+    }
+
+    // Buscar movimientos
+    console.log(
+      "Buscando movimientos entre:",
+      startDate.format("YYYY-MM-DD"),
+      "y",
+      endDate.format("YYYY-MM-DD")
+    );
+    const movimientos = await this.movementRepository.findByDateRangeForCSV(
+      startDate.toDate(),
+      endDate.toDate()
+    );
+
+    console.log("Total movimientos encontrados:", movimientos.length);
+    console.log(
+      "Movimientos:",
+      movimientos.map((m) => ({
+        id: m.id,
+        employeeCode: m.employeeCode,
+        incidentCode: m.incidentCode,
+        incidenceDate: m.incidenceDate,
+      }))
+    );
+
+    // Mapa de códigos de incidencia según los requerimientos
+    const incidenciaMap = {
+      "005": "005", // Descansos Trabajados (Columna I)
+      "008": "008", // Prima dominical (Columna K)
+      "215": "251", // Faltas (Columna Q) - código 215 se mapea a 251
+      "251": "251", // Faltas (Columna Q) - por si acaso también existe 251
+      "009": "009", // Días devueltos (Columna O)
+    };
+
+    // Filtrar solo los movimientos que corresponden a los códigos de incidencia requeridos
+    const movimientosFiltrados = movimientos.filter((movimiento) =>
+      incidenciaMap.hasOwnProperty(movimiento.incidentCode)
+    );
+
+    console.log("Movimientos filtrados:", movimientosFiltrados.length);
+    console.log(
+      "Códigos de incidencia en movimientos filtrados:",
+      movimientosFiltrados.map((m) => m.incidentCode)
+    );
+
+    // Preparar datos CSV
+    const csvRows = movimientosFiltrados.map((movimiento) => {
+      const incidenciaId = incidenciaMap[movimiento.incidentCode];
+      return [
+        movimiento.employee.employeeCode,
+        incidenciaId,
+        "1", // Número de incidencias (constante 1)
+        "0", // Importe (constante 0)
+      ].join("|");
+    });
+
+    // Escribir a archivo CSV
+    const csvContent = csvRows.join("\n");
+    const fileName = `CSV-${period}-${moment().format("YYYYMMDD")}.csv`;
+    const filePath = path.join(process.cwd(), "temp", fileName);
+
+    try {
+      // Crear directorio temp si no existe
+      const tempDir = path.join(process.cwd(), "temp");
+      if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir, { recursive: true });
+      }
+
+      fs.writeFileSync(filePath, csvContent, "utf8");
+      const fileBuffer = fs.readFileSync(filePath);
+
+      return {
+        message: "CSV generado exitosamente",
+        filePath,
+        fileName,
+        period,
+        totalMovimientos: movimientosFiltrados.length,
+        rangoFechas: {
+          desde: startDate.format("YYYY-MM-DD"),
+          hasta: endDate.format("YYYY-MM-DD"),
+        },
+        fileBuffer,
+      };
+    } catch (error) {
+      throw new NotFoundException(
+        `Error al generar archivo CVV: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
   }
 }

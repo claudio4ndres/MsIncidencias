@@ -5,12 +5,15 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { Between, ILike } from "typeorm";
+import { v4 as uuidv4 } from "uuid";
 import {
   PaginatedResponseDto,
   PaginationQueryDto,
 } from "../_common/dto/pagination.dto";
 import {
+  CalendarRepository,
   EmployeeRepository,
+  HolidayRepository,
   IncidentRepository,
   MovementRepository,
   UserAccessRepository,
@@ -24,6 +27,7 @@ import {
   MovementSearchDto,
   UpdateMovementDto,
 } from "./dto/movement.dto";
+import { MovementValidationService } from "./services/movement-validation.service";
 
 @Injectable()
 export class MovementsService {
@@ -32,7 +36,10 @@ export class MovementsService {
     private readonly employeeRepository: EmployeeRepository,
     private readonly incidentRepository: IncidentRepository,
     private readonly userAccessService: UserAccessService,
-    private readonly userAccessRepository: UserAccessRepository
+    private readonly userAccessRepository: UserAccessRepository,
+    private readonly calendarRepository: CalendarRepository,
+    private readonly holidayRepository: HolidayRepository,
+    private readonly movementValidationService: MovementValidationService
   ) {}
 
   async findAll(
@@ -41,17 +48,6 @@ export class MovementsService {
   ): Promise<PaginatedResponseDto<MovementResponseDto>> {
     const { page = 1, pageSize = 10, search = "" } = paginationQuery;
     const skip = (page - 1) * pageSize;
-    /*
-    token {
-      id: 'b697f757-5c41-11f0-ae2b-0242ac150002',
-      name: 'System Administrator',
-      email: 'superadmin@localhost.dev',
-      role: 1,
-      iat: 1752077443,
-      exp: 1752081043
-    }
-    Los companyId y officeId ahora se obtienen de la tabla user_access
-      */
     try {
       // Construir filtro de oficinas basado en el acceso del usuario
       const officeFilter = await this.userAccessService.buildOfficeFilter(
@@ -178,15 +174,33 @@ export class MovementsService {
       if (!incident) {
         throw new BadRequestException("El incidente especificado no existe");
       }
-      console.log("employee:", employee);
-      /*
+      console.log({
+        employee: employee,
+        dto: createMovementDto,
+      });
+
+      // Generar ID para el movimiento
+      const movementId = uuidv4();
+
+      // Validar reglas de negocio usando el servicio de validación
+      await this.movementValidationService.validateMovementBusinessRules(
+        createMovementDto.employee_code,
+        createMovementDto.incident_code,
+        createMovementDto.incidence_date,
+        createMovementDto.period,
+        employee,
+        movementId,
+        token.id
+      );
+
+      // Crear y guardar el movimiento
       const savedMovement = await this.movementRepository.save({
-        id: uuidv4(),
+        id: movementId,
         employeeCode: createMovementDto.employee_code,
         incidentCode: createMovementDto.incident_code,
         incidenceDate: new Date(createMovementDto.incidence_date),
         incidenceObservation: createMovementDto.incidence_observation,
-        incidenceStatus: createMovementDto.incidence_status,
+        incidenceStatus: createMovementDto.incidence_status || 1,
         updatedAt: new Date(createMovementDto.incidence_date),
       });
 
@@ -204,8 +218,6 @@ export class MovementsService {
       });
 
       return this.mapToResponseDto(movementWithRelations);
-      */
-      return "Movimiento creado exitosamente" as any;
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;
