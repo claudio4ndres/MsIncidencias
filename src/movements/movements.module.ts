@@ -1,29 +1,28 @@
 import { Module } from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { JwtAuthGuard } from "../_common/guards/jwt-auth.guard";
 import {
+  ApprovalEntity,
+  ApprovalRepository,
+  Calendar,
+  CalendarRepository,
   EmployeeEntity,
   EmployeeRepository,
+  Holiday,
+  HolidayRepository,
   IncidentEntity,
   IncidentRepository,
   MovementEntity,
   MovementRepository,
   UserAccessEntity,
   UserAccessRepository,
-  Calendar,
-  CalendarRepository,
-  Holiday,
-  HolidayRepository,
-  ApprovalEntity,
-  ApprovalRepository,
 } from "../_common/repository";
 import { UserAccessService } from "../_common/services/user-access.service";
+import { ApprovalController } from "./controllers/approval.controller";
 import { MovementsController } from "./movements.controller";
 import { MovementsService } from "./movements.service";
-import { MovementValidationService } from "./services/movement-validation.service";
 import { ApprovalService } from "./services/approval.service";
-import { ApprovalController } from "./controllers/approval.controller";
+import { MovementValidationService } from "./services/movement-validation.service";
 
 @Module({
   imports: [
@@ -51,7 +50,6 @@ import { ApprovalController } from "./controllers/approval.controller";
     UserAccessService,
     MovementValidationService,
     ApprovalService,
-    JwtAuthGuard,
   ],
   exports: [MovementsService],
 })

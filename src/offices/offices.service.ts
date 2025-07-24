@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { Like } from "typeorm";
+import { v4 as uuidv4 } from "uuid";
 import {
   PaginatedResponseDto,
   PaginationQueryDto,
@@ -15,7 +16,6 @@ import {
   UpdateOfficeDto,
 } from "./dto/office.dto";
 import { OfficeMapper } from "./mappers/office.mapper";
-
 @Injectable()
 export class OfficesService {
   constructor(private readonly officeRepository: OfficeRepository) {}
@@ -60,9 +60,11 @@ export class OfficesService {
   async create(createOfficeDto: CreateOfficeDto): Promise<OfficeResponseDto> {
     try {
       const savedOffice = await this.officeRepository.save({
+        id: uuidv4(),
         companyId: createOfficeDto.company_id,
         officeName: createOfficeDto.office_name,
         officeStatus: createOfficeDto.office_status,
+        updatedAt: new Date(Date.now()),
       });
 
       // Obtener la oficina con la relación de compañía para devolver el nombre

@@ -2,6 +2,14 @@ import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn, Many
 import { EmployeeEntity } from './employee.entity';
 import { IncidentEntity } from './incident.entity';
 
+export enum MovementApprovalStatus {
+  PENDING = 'pending',
+  APPROVED_BY_ZONE_MANAGER = 'approved_by_zone_manager',
+  APPROVED_BY_HR_ADMIN = 'approved_by_hr_admin',
+  FULLY_APPROVED = 'fully_approved',
+  REJECTED = 'rejected'
+}
+
 @Entity('movements')
 @Index('idx_movement_employee_code', ['employeeCode'])
 @Index('idx_movement_incident_code', ['incidentCode'])
@@ -51,6 +59,15 @@ export class MovementEntity {
     comment: 'Estado de la incidencia (1 = activo, 0 = inactivo)'
   })
   incidenceStatus: number;
+
+  @Column({
+    name: 'approval_status',
+    type: 'enum',
+    enum: MovementApprovalStatus,
+    default: MovementApprovalStatus.PENDING,
+    comment: 'Estado de aprobación del movimiento'
+  })
+  approvalStatus: MovementApprovalStatus;
 
   @CreateDateColumn({
     name: 'created_at',

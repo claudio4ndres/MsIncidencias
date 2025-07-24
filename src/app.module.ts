@@ -12,9 +12,11 @@ import { LoggerInterceptor } from "@common/interceptor";
 import { LoggerModule } from "@common/logger/logger.module";
 import { LoggerMiddleware } from "@common/middleware";
 import { DatabaseModule } from "@common/repository/config/database.module";
+import { AuditInterceptor } from "./audit/interceptors/audit.interceptor";
 import { getAppConfig } from "../config";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
+import { AuditModule } from "./audit/audit.module";
 import { AuthModule } from "./auth/auth.module";
 import { CalendarModule } from "./calendar/calendar.module";
 import { CompaniesModule } from "./companies/companies.module";
@@ -44,6 +46,7 @@ import { UsersModule } from "./users/users.module";
     }),
     LoggerModule,
     DatabaseModule,
+    AuditModule,
     AuthModule,
     CompaniesModule,
     OfficesModule,
@@ -68,6 +71,10 @@ import { UsersModule } from "./users/users.module";
     {
       provide: APP_INTERCEPTOR,
       useClass: LoggerInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditInterceptor,
     },
   ],
 })

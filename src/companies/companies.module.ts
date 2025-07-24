@@ -1,10 +1,9 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { JwtModule } from '@nestjs/jwt';
-import { CompaniesController } from './companies.controller';
-import { CompaniesService } from './companies.service';
-import { CompanyEntity, CompanyRepository } from '../_common/repository';
-import { JwtAuthGuard } from '../_common/guards/jwt-auth.guard';
+import { Module } from "@nestjs/common";
+import { JwtModule } from "@nestjs/jwt";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { CompanyEntity, CompanyRepository } from "../_common/repository";
+import { CompaniesController } from "./companies.controller";
+import { CompaniesService } from "./companies.service";
 
 @Module({
   imports: [
@@ -12,11 +11,7 @@ import { JwtAuthGuard } from '../_common/guards/jwt-auth.guard';
     JwtModule.register({}), // Para el guard
   ],
   controllers: [CompaniesController],
-  providers: [
-    CompaniesService,
-    CompanyRepository,
-    JwtAuthGuard,
-  ],
+  providers: [CompaniesService, CompanyRepository],
   exports: [CompaniesService],
 })
 export class CompaniesModule {}

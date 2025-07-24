@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
   Post,
   Put,
   Query,
@@ -15,8 +14,10 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
-import { TokenDecorator } from "@src/_common/decorators";
+import { Roles, TokenDecorator } from "@src/_common/decorators";
+import { Role } from "@src/_common/enums";
 import { TokenGuard } from "@src/_common/guards";
+import { RolesGuard } from "@src/_common/guards/roles.guard";
 import { IAccessToken } from "@src/_common/interfaces";
 import {
   PaginatedResponseDto,
@@ -33,7 +34,8 @@ import {
 import { MovementsService } from "./movements.service";
 
 @ApiTags("Movimientos")
-@UseGuards(TokenGuard)
+@UseGuards(TokenGuard, RolesGuard)
+@Roles(Role.ADMIN, Role.GERENTE, Role.RH)
 @Controller("movements")
 export class MovementsController {
   constructor(private readonly movementsService: MovementsService) {}
@@ -84,7 +86,7 @@ export class MovementsController {
       userSession
     );
   }
-
+  /*
   @Get("stats")
   @ApiBearerAuth()
   @ApiOperation({ summary: "Obtener estadísticas de movimientos" })
@@ -175,7 +177,7 @@ export class MovementsController {
     const userSession = this.convertTokenToUserSession(token);
     return this.movementsService.findByStatus(parseInt(status), userSession);
   }
- */
+
   @Get("date-range")
   @ApiBearerAuth()
   @ApiOperation({ summary: "Obtener movimientos por rango de fechas" })
@@ -213,7 +215,7 @@ export class MovementsController {
     const userSession = this.convertTokenToUserSession(token);
     return this.movementsService.findOne(id, userSession);
   }
-
+ */
   @Post()
   @ApiBearerAuth()
   @ApiOperation({ summary: "Crear un nuevo movimiento" })

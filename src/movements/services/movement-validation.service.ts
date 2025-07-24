@@ -1,16 +1,23 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
-import { Between, LessThan } from 'typeorm';
-import { CalendarRepository, HolidayRepository, MovementRepository } from '../../_common/repository';
-import { ApprovalRepository } from '../../_common/repository/approval.repository';
-import { EmployeeEntity } from '../../_common/repository/entities/employee.entity';
-import { ApprovalType } from '../../_common/repository/entities/approval.entity';
-import { ApprovalService } from './approval.service';
-import { IncidentCode, UNIQUE_INCIDENT_CODES, INCIDENT_CODE_TO_NAME } from '../enums/incident-codes.enum';
-import { WeekDay, WEEKDAY_NAMES, WEEKDAYS_MONDAY_TO_SATURDAY } from '../../_common/enums/weekday.enum';
-import moment from 'moment-timezone';
+import { BadRequestException, Injectable } from "@nestjs/common";
+import moment from "moment-timezone";
+import { Between, LessThan } from "typeorm";
+import { WeekDay, WEEKDAY_NAMES } from "../../_common/enums/weekday.enum";
+import {
+  CalendarRepository,
+  HolidayRepository,
+  MovementRepository,
+} from "../../_common/repository";
+import { ApprovalRepository } from "../../_common/repository/approval.repository";
+import { EmployeeEntity } from "../../_common/repository/entities/employee.entity";
+import {
+  INCIDENT_CODE_TO_NAME,
+  IncidentCode,
+  UNIQUE_INCIDENT_CODES,
+} from "../enums/incident-codes.enum";
+import { ApprovalService } from "./approval.service";
 
 // Configurar moment con locale español
-moment.locale('es');
+moment.locale("es");
 
 @Injectable()
 export class MovementValidationService {
@@ -65,7 +72,11 @@ export class MovementValidationService {
     }
 
     // 3. Validación automática de duplicados para incidentes que requieren unicidad por fecha
-    await this.validateDuplicateIncidentsForDate(employeeCode, incidentCode, mexicoDate);
+    await this.validateDuplicateIncidentsForDate(
+      employeeCode,
+      incidentCode,
+      mexicoDate
+    );
 
     // 4. Validar reglas específicas por tipo de incidente
     switch (incidentCode) {
@@ -88,7 +99,13 @@ export class MovementValidationService {
         );
         break;
       case IncidentCode.DIA_DEVUELTO:
-        await this.validateDiaDevuelto(employeeCode, incidenceDate, period, movementId, requestedBy);
+        await this.validateDiaDevuelto(
+          employeeCode,
+          incidenceDate,
+          period,
+          movementId,
+          requestedBy
+        );
         break;
       case IncidentCode.FALTA:
         await this.validateFalta(
@@ -117,12 +134,13 @@ export class MovementValidationService {
         where: {
           employeeCode,
           incidentCode,
-          incidenceDate: mexicoDate.toDate()
-        }
+          incidenceDate: mexicoDate.toDate(),
+        },
       });
 
       if (existingMovement) {
-        const incidentName = INCIDENT_CODE_TO_NAME[incidentCode] || 'movimiento';
+        const incidentName =
+          INCIDENT_CODE_TO_NAME[incidentCode] || "movimiento";
         throw new BadRequestException(
           `Ya existe un ${incidentName} registrado para esta fecha`
         );
@@ -145,12 +163,12 @@ export class MovementValidationService {
     const calendarPeriod = await this.calendarRepository.findByPeriod(period);
     if (calendarPeriod) {
       const periodRange = this.parsePeriodRange(calendarPeriod.range);
-      
+
       const faltaEnPeriodo = await this.movementRepository.findOne({
         where: {
           employeeCode,
           incidentCode: "215", // Faltas
-          incidenceDate: Between(periodRange.start, periodRange.end)
+          incidenceDate: Between(periodRange.start, periodRange.end),
         },
       });
 
@@ -172,7 +190,7 @@ export class MovementValidationService {
     // 3. Validar día de descanso semanal (Regla 6)
     const mexicoDate = moment(incidenceDate).tz("America/Mexico_City");
     const descansoTrabajadoDay = mexicoDate.day(); // 0=domingo, 1=lunes, etc.
-    
+
     if (employee.weeklyRestDay === descansoTrabajadoDay) {
       const dayName = WEEKDAY_NAMES[employee.weeklyRestDay];
       throw new BadRequestException(
@@ -253,68 +271,71 @@ export class MovementValidationService {
     requestedBy?: string
   ): Promise<void> {
     const mexicoDate = moment(incidenceDate).tz("America/Mexico_City");
-    
+
     // 1. Obtener el período actual y sus fechas
     const currentPeriod = await this.calendarRepository.findByPeriod(period);
     if (!currentPeriod) {
       throw new BadRequestException(`El período ${period} no existe`);
     }
-    
+
     const currentPeriodRange = this.parsePeriodRange(currentPeriod.range);
-    
+
     // 2. Buscar falta anterior que corresponda a la fecha del día devuelto
     // Primero buscar en el período actual
     let faltaAnterior = await this.movementRepository.findOne({
       where: {
         employeeCode,
         incidentCode: "215", // Faltas
-        incidenceDate: mexicoDate.toDate()
+        incidenceDate: mexicoDate.toDate(),
       },
     });
-    
+
     let isPreviousPeriod = false;
-    
+
     // Si no se encuentra en el período actual, buscar en períodos anteriores
     if (!faltaAnterior) {
       faltaAnterior = await this.movementRepository.findOne({
         where: {
           employeeCode,
           incidentCode: "215", // Faltas
-          incidenceDate: LessThan(currentPeriodRange.start)
+          incidenceDate: LessThan(currentPeriodRange.start),
         },
         order: {
-          incidenceDate: 'DESC'
-        }
+          incidenceDate: "DESC",
+        },
       });
-      
+
       if (faltaAnterior) {
         isPreviousPeriod = true;
       }
     }
-    
+
     if (!faltaAnterior) {
       throw new BadRequestException(
         "No se puede registrar un día devuelto sin una falta anterior registrada que corresponda a la fecha"
       );
     }
-    
+
     // 3. Si la falta es de un período anterior, manejar el proceso de aprobación
     if (isPreviousPeriod) {
-      const hasApproval = await this.approvalService.hasApprovedDiaDevuelto(faltaAnterior.id);
-      
+      const hasApproval = await this.approvalService.hasApprovedDiaDevuelto(
+        faltaAnterior.id
+      );
+
       if (!hasApproval) {
         // Crear automáticamente la solicitud de aprobación si no existe
         if (movementId && requestedBy) {
-          const approval = await this.approvalService.createOrFindDiaDevueltoApproval(
-            movementId,
-            requestedBy,
-            faltaAnterior.id
-          );
-          
+          const approval =
+            await this.approvalService.createOrFindDiaDevueltoApproval(
+              movementId,
+              requestedBy,
+              faltaAnterior.id
+            );
+
           throw new BadRequestException(
             `Se ha creado una solicitud de aprobación (ID: ${approval.id}) para el día devuelto de período anterior. ` +
-            `Se requieren ${approval.requiredApprovals} aprobaciones del director de RH. ` +
-            `Aprobaciones actuales: ${approval.currentApprovalCount}/${approval.requiredApprovals}.`
+              `Se requieren ${approval.requiredApprovals} aprobaciones del director de RH. ` +
+              `Aprobaciones actuales: ${approval.currentApprovalCount}/${approval.requiredApprovals}.`
           );
         } else {
           throw new BadRequestException(
@@ -351,7 +372,7 @@ export class MovementValidationService {
         where: {
           employeeCode,
           incidentCode: "005", // Descansos Trabajados
-          incidenceDate: Between(periodRange.start, periodRange.end)
+          incidenceDate: Between(periodRange.start, periodRange.end),
         },
       });
 
@@ -369,62 +390,80 @@ export class MovementValidationService {
   private parsePeriodRange(rangeString: string): { start: Date; end: Date } {
     // El formato parece ser "viernes 11 julio al jueves 17 julio"
     // Vamos a intentar extraer las fechas de este formato
-    
+
     try {
       // Regex para extraer los números de día y meses
       const regex = /(\w+)\s+(\d+)\s+(\w+)\s+al\s+(\w+)\s+(\d+)\s+(\w+)/i;
       const match = rangeString.match(regex);
-      
+
       if (!match) {
         throw new Error(`No se pudo parsear el rango: ${rangeString}`);
       }
-      
+
       const [, , startDay, startMonth, , endDay, endMonth] = match;
-      
+
       // Mapear nombres de meses en español a números
       const monthMap: { [key: string]: number } = {
-        'enero': 0, 'febrero': 1, 'marzo': 2, 'abril': 3,
-        'mayo': 4, 'junio': 5, 'julio': 6, 'agosto': 7,
-        'septiembre': 8, 'octubre': 9, 'noviembre': 10, 'diciembre': 11
+        enero: 0,
+        febrero: 1,
+        marzo: 2,
+        abril: 3,
+        mayo: 4,
+        junio: 5,
+        julio: 6,
+        agosto: 7,
+        septiembre: 8,
+        octubre: 9,
+        noviembre: 10,
+        diciembre: 11,
       };
-      
+
       const currentYear = new Date().getFullYear();
-      
+
       const startMonthNum = monthMap[startMonth.toLowerCase()];
       const endMonthNum = monthMap[endMonth.toLowerCase()];
-      
+
       if (startMonthNum === undefined || endMonthNum === undefined) {
         throw new Error(`Mes no reconocido en: ${rangeString}`);
       }
-      
+
       const start = moment()
         .year(currentYear)
         .month(startMonthNum)
         .date(parseInt(startDay))
-        .startOf('day')
-        .tz('America/Mexico_City')
+        .startOf("day")
+        .tz("America/Mexico_City")
         .toDate();
-      
+
       const end = moment()
         .year(currentYear)
         .month(endMonthNum)
         .date(parseInt(endDay))
-        .endOf('day')
-        .tz('America/Mexico_City')
+        .endOf("day")
+        .tz("America/Mexico_City")
         .toDate();
-      
+
       return { start, end };
     } catch (error) {
       // Fallback: intentar formato DD/MM/YYYY
-      console.warn(`Error parsing range '${rangeString}', trying fallback format:`, error);
-      
-      if (rangeString.includes(' - ')) {
-        const [startStr, endStr] = rangeString.split(' - ');
-        const start = moment(startStr, 'DD/MM/YYYY').tz('America/Mexico_City').startOf('day').toDate();
-        const end = moment(endStr, 'DD/MM/YYYY').tz('America/Mexico_City').endOf('day').toDate();
+      console.warn(
+        `Error parsing range '${rangeString}', trying fallback format:`,
+        error
+      );
+
+      if (rangeString.includes(" - ")) {
+        const [startStr, endStr] = rangeString.split(" - ");
+        const start = moment(startStr, "DD/MM/YYYY")
+          .tz("America/Mexico_City")
+          .startOf("day")
+          .toDate();
+        const end = moment(endStr, "DD/MM/YYYY")
+          .tz("America/Mexico_City")
+          .endOf("day")
+          .toDate();
         return { start, end };
       }
-      
+
       throw new Error(`No se pudo parsear el rango de fechas: ${rangeString}`);
     }
   }

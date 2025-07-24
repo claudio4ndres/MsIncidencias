@@ -10,7 +10,10 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Roles } from "@src/_common/decorators";
+import { Role } from "@src/_common/enums";
 import { TokenGuard } from "@src/_common/guards";
+import { RolesGuard } from "@src/_common/guards/roles.guard";
 import {
   PaginatedResponseDto,
   PaginationQueryDto,
@@ -25,7 +28,8 @@ import { OfficesService } from "./offices.service";
 
 @ApiTags("Oficinas")
 @Controller("offices")
-@UseGuards(TokenGuard)
+@UseGuards(TokenGuard, RolesGuard)
+@Roles(Role.ADMIN, Role.GERENTE)
 @ApiBearerAuth()
 export class OfficesController {
   constructor(private readonly officesService: OfficesService) {}

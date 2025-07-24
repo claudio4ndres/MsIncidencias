@@ -15,7 +15,10 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
+import { Roles } from "@src/_common/decorators";
+import { Role } from "@src/_common/enums";
 import { TokenGuard } from "@src/_common/guards";
+import { RolesGuard } from "@src/_common/guards/roles.guard";
 import {
   PaginatedResponseDto,
   PaginationQueryDto,
@@ -30,7 +33,8 @@ import { IncidentsService } from "./incidents.service";
 
 @ApiTags("Incidentes")
 @Controller("incidents")
-@UseGuards(TokenGuard)
+@UseGuards(TokenGuard, RolesGuard)
+@Roles(Role.ADMIN, Role.GERENTE)
 @ApiBearerAuth()
 export class IncidentsController {
   constructor(private readonly incidentsService: IncidentsService) {}
@@ -49,7 +53,7 @@ export class IncidentsController {
   ): Promise<PaginatedResponseDto<IncidentResponseDto>> {
     return this.incidentsService.findAll(paginationQuery);
   }
-
+  /*
   @Get("stats")
   @ApiOperation({ summary: "Obtener estadísticas de incidentes" })
   @ApiResponse({
@@ -96,7 +100,7 @@ export class IncidentsController {
   async findOne(@Param("id") id: string): Promise<IncidentResponseDto> {
     return this.incidentsService.findOne(id);
   }
-
+ */
   @Get(":id/movements")
   @ApiOperation({ summary: "Obtener incidente con sus movimientos" })
   @ApiResponse({

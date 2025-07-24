@@ -18,7 +18,7 @@ import {
   MovementRepository,
   UserAccessRepository,
 } from "../_common/repository";
-import { MovementEntity } from "../_common/repository/entities/movement.entity";
+import { MovementEntity, MovementApprovalStatus } from "../_common/repository/entities/movement.entity";
 import { UserAccessService } from "../_common/services/user-access.service";
 import { UserSessionDto } from "../auth/dto/auth-response.dto";
 import {
@@ -193,7 +193,7 @@ export class MovementsService {
         token.id
       );
 
-      // Crear y guardar el movimiento
+      // Crear y guardar el movimiento con estado de aprobación pendiente
       const savedMovement = await this.movementRepository.save({
         id: movementId,
         employeeCode: createMovementDto.employee_code,
@@ -201,6 +201,7 @@ export class MovementsService {
         incidenceDate: new Date(createMovementDto.incidence_date),
         incidenceObservation: createMovementDto.incidence_observation,
         incidenceStatus: createMovementDto.incidence_status || 1,
+        approvalStatus: MovementApprovalStatus.PENDING,
         updatedAt: new Date(createMovementDto.incidence_date),
       });
 

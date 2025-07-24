@@ -5,7 +5,6 @@ import { CalendarRepository } from "@src/_common/repository/calendar.repository"
 import { Calendar } from "@src/_common/repository/entities/calendar.entity";
 import { MovementEntity } from "@src/_common/repository/entities/movement.entity";
 import { MovementRepository } from "@src/_common/repository/movement.repository";
-import { JwtAuthGuard } from "../_common/guards/jwt-auth.guard";
 import { PeriodsController } from "./periods.controller";
 import { PeriodsService } from "./periods.service";
 
@@ -15,12 +14,7 @@ import { PeriodsService } from "./periods.service";
     JwtModule.register({}),
   ],
   controllers: [PeriodsController],
-  providers: [
-    PeriodsService,
-    CalendarRepository,
-    MovementRepository,
-    JwtAuthGuard,
-  ],
+  providers: [PeriodsService, CalendarRepository, MovementRepository],
   exports: [PeriodsService],
 })
 export class PeriodsModule {}

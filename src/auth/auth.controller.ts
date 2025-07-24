@@ -7,8 +7,8 @@ import {
   Post,
   Req,
   Res,
-  UseGuards,
   UnauthorizedException,
+  UseGuards,
 } from "@nestjs/common";
 import {
   ApiBearerAuth,
@@ -21,12 +21,12 @@ import { TokenGuard } from "@src/_common/guards";
 import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import {
+  DecodeTokenDto,
+  DecodeTokenResponseDto,
   LoginResponseDto,
   LogoutResponseDto,
   RegisterResponseDto,
   UserSessionDto,
-  DecodeTokenDto,
-  DecodeTokenResponseDto,
 } from "./dto/auth-response.dto";
 import { LoginDto } from "./dto/login.dto";
 import { RegisterDto } from "./dto/register.dto";
@@ -53,10 +53,9 @@ export class AuthController {
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) response: Response
   ): Promise<LoginResponseDto> {
-    const { user, token } = await this.authService.login(loginDto);
+    const { token } = await this.authService.login(loginDto);
     return {
       message: "Login exitoso",
-      user,
       token,
     };
   }
@@ -128,8 +127,8 @@ export class AuthController {
     // Obtener token del header Authorization
     const authHeader = request.headers.authorization;
     let token = null;
-    
-    if (authHeader && authHeader.startsWith('Bearer ')) {
+
+    if (authHeader && authHeader.startsWith("Bearer ")) {
       token = authHeader.substring(7); // Remover 'Bearer ' del inicio
     } else if (request.cookies?.token) {
       // Fallback a cookie si no hay header Authorization
@@ -160,9 +159,11 @@ export class AuthController {
     status: 401,
     description: "Token inválido o expirado",
   })
-  async decodeToken(@Body() decodeTokenDto: DecodeTokenDto): Promise<DecodeTokenResponseDto> {
+  async decodeToken(
+    @Body() decodeTokenDto: DecodeTokenDto
+  ): Promise<DecodeTokenResponseDto> {
     const { token } = decodeTokenDto;
-    
+
     if (!token) {
       throw new UnauthorizedException("Token es requerido");
     }

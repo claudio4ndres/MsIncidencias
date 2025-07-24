@@ -42,7 +42,17 @@ export class TokenGuard extends AuthGuard("jwt") {
         secret,
       });
       console.log("decodedToken", decodedToken);
-
+    /*
+        {
+        id: '32b69af9-4c1e-4961-aad4-782c94be17d6',
+        name: 'Claudio Figueroa ',
+        email: 'cfigueroa.RH@ejemplo.com',
+        role: 1,
+        iat: 1753106375,
+        exp: 1753107275
+      }
+    */
+      req.user = decodedToken;
       req.token = decodedToken;
       req.authorization = authorization;
       return true;

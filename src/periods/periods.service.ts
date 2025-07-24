@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { CalendarRepository } from "@src/_common/repository/calendar.repository";
+import { Calendar } from "@src/_common/repository/entities/calendar.entity";
 import { MovementRepository } from "@src/_common/repository/movement.repository";
 import * as fs from "fs";
 import moment from "moment";
@@ -16,6 +17,194 @@ export class PeriodsService {
     private readonly calendarRepository: CalendarRepository,
     private readonly movementRepository: MovementRepository
   ) {}
+
+  async findCurrent(): Promise<any | null> {
+    const now = new Date();
+    const startOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      0,
+      0,
+      0
+    );
+    const endOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23,
+      59,
+      59,
+      999
+    );
+    // Buscar período activo donde la fecha actual esté dentro del rango de fechas
+    const calendar = await this.calendarRepository.findCurrentPeriod(
+      startOfDay,
+      endOfDay
+    );
+
+    if (!calendar) {
+      return null;
+    }
+
+    // Transformar datos de Calendar al formato Period
+    return this.transformCalendarToPeriod(calendar, now);
+  }
+
+  private transformCalendarToPeriod(
+    calendar: Calendar,
+    currentDate: Date
+  ): any {
+    // Parsear el rango para obtener las fechas de inicio y fin
+    const { periodStart, periodEnd } = this.parsePeriodRange(
+      calendar.range,
+      calendar.incidentSubmission.getFullYear()
+    );
+
+    return {
+      id: calendar.id,
+      period_name: calendar.period,
+      period_start: periodStart.toISOString(),
+      period_end: periodEnd.toISOString(),
+      period_status: "ACTIVE",
+      created_at: calendar.incidentSubmission.toISOString(),
+      updated_at: currentDate.toISOString(),
+    };
+  }
+
+  private parsePeriodRange(
+    rangeString: string,
+    year: number
+  ): { periodStart: Date; periodEnd: Date } {
+    try {
+      const monthMap: { [key: string]: number } = {
+        enero: 0,
+        febrero: 1,
+        marzo: 2,
+        abril: 3,
+        mayo: 4,
+        junio: 5,
+        julio: 6,
+        agosto: 7,
+        septiembre: 8,
+        octubre: 9,
+        noviembre: 10,
+        diciembre: 11,
+      };
+
+      // Caso 1: "al miércoles 25 diciembre" - Solo fecha final
+      const singleDateMatch = rangeString.match(
+        /^al\s+(\w+)\s+(\d{1,2})\s+(\w+)$/i
+      );
+      if (singleDateMatch) {
+        const [, , endDay, endMonth] = singleDateMatch;
+        const endMonthNum = monthMap[endMonth.toLowerCase()];
+
+        if (endMonthNum === undefined) {
+          throw new Error(`Mes no reconocido: ${endMonth}`);
+        }
+
+        // Para casos como "al 25 diciembre", asumimos que empieza el 1 del mismo mes
+        const periodStart = new Date(year, endMonthNum, 1, 4, 0, 0);
+        const periodEnd = new Date(
+          year,
+          endMonthNum,
+          parseInt(endDay),
+          4,
+          0,
+          0
+        );
+
+        return { periodStart, periodEnd };
+      }
+
+      // Caso 2: "viernes 6 al jueves 12 junio" - Sin mes en la primera fecha
+      const partialMatch = rangeString.match(
+        /(\w+)\s+(\d{1,2})\s+al\s+(\w+)\s+(\d{1,2})\s+(\w+)/i
+      );
+      if (partialMatch) {
+        const [, , startDay, , endDay, endMonth] = partialMatch;
+        const endMonthNum = monthMap[endMonth.toLowerCase()];
+
+        if (endMonthNum === undefined) {
+          throw new Error(`Mes no reconocido: ${endMonth}`);
+        }
+
+        // La fecha de inicio usa el mismo mes que la fecha final
+        const periodStart = new Date(
+          year,
+          endMonthNum,
+          parseInt(startDay),
+          4,
+          0,
+          0
+        );
+        const periodEnd = new Date(
+          year,
+          endMonthNum,
+          parseInt(endDay),
+          4,
+          0,
+          0
+        );
+
+        return { periodStart, periodEnd };
+      }
+
+      // Caso 3: "jueves 26 diciembre al jueves 2 enero" - Formato completo
+      const fullMatch = rangeString.match(
+        /(\w+)\s+(\d{1,2})\s+(\w+)\s+al?\s+(\w+)\s+(\d{1,2})\s+(\w+)/i
+      );
+      if (fullMatch) {
+        const [, , startDay, startMonth, , endDay, endMonth] = fullMatch;
+
+        const startMonthNum = monthMap[startMonth.toLowerCase()];
+        const endMonthNum = monthMap[endMonth.toLowerCase()];
+
+        if (startMonthNum === undefined || endMonthNum === undefined) {
+          throw new Error(`Mes no reconocido en: ${rangeString}`);
+        }
+
+        let startYear = year;
+        let endYear = year;
+
+        // Ajustar años para casos como "diciembre al enero" (cruce de año)
+        if (startMonthNum === 11 && endMonthNum === 0) {
+          endYear = year + 1;
+        } else if (startMonthNum > endMonthNum) {
+          endYear = year + 1;
+        }
+
+        const periodStart = new Date(
+          startYear,
+          startMonthNum,
+          parseInt(startDay),
+          4,
+          0,
+          0
+        );
+        const periodEnd = new Date(
+          endYear,
+          endMonthNum,
+          parseInt(endDay),
+          4,
+          0,
+          0
+        );
+
+        return { periodStart, periodEnd };
+      }
+
+      const start = new Date(year, 0, 1);
+      const end = new Date(year, 11, 31);
+      return { periodStart: start, periodEnd: end };
+    } catch (error) {
+      console.error(`Error parsing range '${rangeString}':`, error);
+      const start = new Date(year, 0, 1);
+      const end = new Date(year, 11, 31);
+      return { periodStart: start, periodEnd: end };
+    }
+  }
 
   async findAll(): Promise<PeriodResponseDto[]> {
     const periods = await this.calendarRepository.findAll();
@@ -110,6 +299,8 @@ export class PeriodsService {
           //payment: calendar.payment,
           semana,
           semanasEnAnio,
+          periodoActual: moment().format("YYYYMMDD"),
+          semanaActual: moment().isoWeek(),
         } as PeriodResponseDto;
       } catch (error) {
         console.error(
@@ -128,6 +319,8 @@ export class PeriodsService {
           payment: calendar.payment,
           semana: 1,
           semanasEnAnio: 52,
+          periodoActual: moment().format("YYYYMMDD"),
+          semanaActual: moment().isoWeek(),
         } as PeriodResponseDto;
       }
     });

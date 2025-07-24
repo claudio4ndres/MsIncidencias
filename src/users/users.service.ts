@@ -13,6 +13,7 @@ import {
   PaginationQueryDto,
 } from "../_common/dto/pagination.dto";
 import { UserRepository } from "../_common/repository";
+import { UserAccessRepository } from "../_common/repository/user-access.repository";
 import { UserEntity } from "../_common/repository/entities/user.entity";
 import {
   ChangePasswordDto,
@@ -22,7 +23,10 @@ import {
 } from "./dto/user.dto";
 @Injectable()
 export class UsersService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly userAccessRepository: UserAccessRepository
+  ) {}
 
   async findAll(
     paginationQuery: PaginationQueryDto
@@ -44,10 +48,11 @@ export class UsersService {
           skip,
           take: pageSize,
           order: { createdAt: "DESC" },
+          relations: ['userAccess', 'userAccess.company', 'userAccess.office'],
         }),
         this.userRepository.count({ where: whereCondition }),
       ]);
-
+      console.log("Fetching users:", users);
       const usersDto = users.map((user) => this.mapToResponseDto(user));
       return new PaginatedResponseDto(usersDto, total, page, pageSize);
     } catch (error) {
@@ -58,6 +63,7 @@ export class UsersService {
   async findOne(id: string): Promise<UserResponseDto> {
     const user = await this.userRepository.findOne({
       where: { id },
+      relations: ['userAccess', 'userAccess.company', 'userAccess.office'],
     });
 
     if (!user) {
@@ -100,7 +106,7 @@ export class UsersService {
   }
 
   async update(updateUserDto: UpdateUserDto): Promise<UserResponseDto> {
-    const { id, user_password, ...updateData } = updateUserDto;
+    const { id, user_password, company_id, office_id, ...updateData } = updateUserDto;
 
     // Verificar que el usuario existe
     await this.findOne(id);
@@ -129,7 +135,13 @@ export class UsersService {
         updatePayload.userPassword = await bcrypt.hash(user_password, 10);
       }
 
+      // Actualizar datos del usuario
       await this.userRepository.update({ id }, updatePayload);
+
+      // Manejar actualización de user_access si se proporcionan company_id u office_id
+      if (company_id || office_id) {
+        await this.updateUserAccess(id, company_id, office_id);
+      }
 
       return await this.findOne(id);
     } catch (error) {
@@ -261,17 +273,87 @@ export class UsersService {
     }
   }
 
+  /**
+   * Actualiza o crea un registro en user_access para el usuario
+   */
+  private async updateUserAccess(
+    userId: string,
+    companyId?: string,
+    officeId?: string
+  ): Promise<void> {
+    try {
+      // Obtener accesos actuales del usuario
+      const currentAccesses = await this.userAccessRepository.findByUserId(userId);
+      
+      // Si ambos parámetros están presentes, buscar o crear el acceso específico
+      if (companyId && officeId) {
+        const existingAccess = currentAccesses.find(
+          access => access.companyId === companyId && access.officeId === officeId
+        );
+        
+        if (!existingAccess) {
+          // Crear nuevo acceso
+          await this.userAccessRepository.save({
+            userId,
+            companyId,
+            officeId,
+            status: 1,
+          });
+        }
+        // Si ya existe, no necesita actualización
+        return;
+      }
+      
+      // Si solo se proporciona company_id, actualizar todos los accesos del usuario
+      if (companyId) {
+        for (const access of currentAccesses) {
+          await this.userAccessRepository.save({
+            ...access,
+            companyId,
+          });
+        }
+        return;
+      }
+      
+      // Si solo se proporciona office_id, actualizar todos los accesos del usuario
+      if (officeId) {
+        for (const access of currentAccesses) {
+          await this.userAccessRepository.save({
+            ...access,
+            officeId,
+          });
+        }
+        return;
+      }
+    } catch (error) {
+      console.error('Error updating user access:', error);
+      throw new InternalServerErrorException('Error al actualizar el acceso del usuario');
+    }
+  }
+
   private mapToResponseDto(user: UserEntity): UserResponseDto {
+    // Obtener el primer acceso activo del usuario (si existe)
+    const activeAccess = user.userAccess?.find(access => access.status === 1);
+    
     return {
       id: user.id,
-      company_id: null, // No longer available
-      office_id: null, // No longer available
+      //company_id: activeAccess?.companyId || null,
+      //office_id: activeAccess?.officeId || null,
       user_name: user.userName,
       user_email: user.userEmail,
       user_status: user.userStatus,
       user_rol: user.userRol,
       created_at: user.createdAt,
       updated_at: user.updatedAt,
+      // Información adicional de acceso (opcional)
+      user_access: user.userAccess?.map(access => ({
+        id: access.id,
+        company_id: access.companyId,
+        office_id: access.officeId,
+        company_name: access.company?.companyName,
+        office_name: access.office?.officeName,
+        status: access.status,
+      })) || [],
     };
   }
 }

@@ -109,4 +109,163 @@ export class ApprovalController {
     const hasApproval = await this.approvalService.hasApprovedDiaDevuelto(relatedMovementId);
     return { hasApproval };
   }
+
+  // =====================================================
+  // ENDPOINTS PARA FLUJO SECUENCIAL DE APROBACIÓN
+  // =====================================================
+
+  /**
+   * Aprueba un movimiento por el Gerente de Zona
+   */
+  @Put('movements/:id/approve-zone-manager')
+  async approveByZoneManager(
+    @Param('id') id: string,
+    @Body() body: {
+      approvedBy: string;
+      comments?: string;
+    }
+  ): Promise<{
+    movement: any;
+    message: string;
+  }> {
+    const movement = await this.approvalService.approveByZoneManager(
+      id,
+      body.approvedBy,
+      body.comments
+    );
+    
+    return {
+      movement,
+      message: 'Movimiento aprobado por Gerente de Zona. Ahora debe ser aprobado por el Administrador de Personal.'
+    };
+  }
+
+  /**
+   * Aprueba un movimiento por el Administrador de Personal
+   */
+  @Put('movements/:id/approve-hr-admin')
+  async approveByHRAdmin(
+    @Param('id') id: string,
+    @Body() body: {
+      approvedBy: string;
+      comments?: string;
+    }
+  ): Promise<{
+    movement: any;
+    message: string;
+  }> {
+    const movement = await this.approvalService.approveByHRAdmin(
+      id,
+      body.approvedBy,
+      body.comments
+    );
+    
+    return {
+      movement,
+      message: 'Movimiento completamente aprobado. Ahora puede ser incluido en la generación de CSV.'
+    };
+  }
+
+  /**
+   * Rechaza un movimiento
+   */
+  @Put('movements/:id/reject')
+  async rejectMovement(
+    @Param('id') id: string,
+    @Body() body: {
+      rejectedBy: string;
+      comments: string;
+    }
+  ): Promise<{
+    movement: any;
+    message: string;
+  }> {
+    const movement = await this.approvalService.rejectMovement(
+      id,
+      body.rejectedBy,
+      body.comments
+    );
+    
+    return {
+      movement,
+      message: 'Movimiento rechazado.'
+    };
+  }
+
+  /**
+   * Obtiene movimientos pendientes para Gerente de Zona
+   */
+  @Get('movements/pending-zone-manager')
+  async getPendingForZoneManager(): Promise<{
+    movements: any[];
+    count: number;
+  }> {
+    const movements = await this.approvalService.getPendingForZoneManager();
+    
+    return {
+      movements,
+      count: movements.length
+    };
+  }
+
+  /**
+   * Obtiene movimientos pendientes para Administrador de Personal
+   */
+  @Get('movements/pending-hr-admin')
+  async getPendingForHRAdmin(): Promise<{
+    movements: any[];
+    count: number;
+  }> {
+    const movements = await this.approvalService.getPendingForHRAdmin();
+    
+    return {
+      movements,
+      count: movements.length
+    };
+  }
+
+  /**
+   * Obtiene movimientos completamente aprobados (listos para CSV)
+   */
+  @Get('movements/fully-approved')
+  async getFullyApprovedMovements(): Promise<{
+    movements: any[];
+    count: number;
+    canGenerateCSV: boolean;
+  }> {
+    const movements = await this.approvalService.getFullyApprovedMovements();
+    const canGenerateCSV = await this.approvalService.canGenerateCSV();
+    
+    return {
+      movements,
+      count: movements.length,
+      canGenerateCSV
+    };
+  }
+
+  /**
+   * Obtiene estadísticas del flujo de aprobación
+   */
+  @Get('movements/approval-stats')
+  async getApprovalStats(): Promise<{
+    stats: any;
+    flow: any;
+  }> {
+    const stats = await this.approvalService.getApprovalStats();
+    const flow = await this.approvalService.getApprovalFlow();
+    
+    return {
+      stats,
+      flow
+    };
+  }
+
+  /**
+   * Verifica si se puede generar CSV
+   */
+  @Get('movements/can-generate-csv')
+  async canGenerateCSV(): Promise<{ canGenerate: boolean }> {
+    const canGenerate = await this.approvalService.canGenerateCSV();
+    return { canGenerate };
+  }
 }

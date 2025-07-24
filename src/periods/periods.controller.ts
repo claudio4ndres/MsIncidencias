@@ -3,6 +3,8 @@ import {
   Controller,
   Get,
   Header,
+  HttpException,
+  HttpStatus,
   Param,
   Post,
   Res,
@@ -18,7 +20,7 @@ import {
 } from "@nestjs/swagger";
 import { TokenGuard } from "@src/_common/guards";
 import { Response } from "express";
-import { GenerateCVVDto, PeriodResponseDto } from "./dto/periods.dto";
+import { GenerateCVVDto, PeriodResponseDto, CurrentPeriodResponseDto } from "./dto/periods.dto";
 import { PeriodsService } from "./periods.service";
 
 @UseGuards(TokenGuard)
@@ -39,6 +41,32 @@ export class PeriodsController {
   })
   async findAll(): Promise<PeriodResponseDto[]> {
     return this.periodsService.findAll();
+  }
+
+  @Get("current")
+  @ApiOperation({
+    summary: "Obtener el período actual basado en la fecha de hoy",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Período actual obtenido exitosamente",
+    type: CurrentPeriodResponseDto,
+  })
+  @ApiResponse({ 
+    status: 404, 
+    description: "No hay período actual" 
+  })
+  async findCurrent(): Promise<CurrentPeriodResponseDto> {
+    const period = await this.periodsService.findCurrent();
+    
+    if (!period) {
+      throw new HttpException(
+        { message: 'No hay periodo actual' }, 
+        HttpStatus.NOT_FOUND
+      );
+    }
+
+    return period;
   }
 
   @Get("filter/:period/movements")

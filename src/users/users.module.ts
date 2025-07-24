@@ -1,22 +1,16 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { JwtModule } from '@nestjs/jwt';
-import { UsersController } from './users.controller';
-import { UsersService } from './users.service';
-import { UserEntity, UserRepository } from '../_common/repository';
-import { JwtAuthGuard } from '../_common/guards/jwt-auth.guard';
+import { Module } from "@nestjs/common";
+import { JwtModule } from "@nestjs/jwt";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { UserEntity, UserRepository } from "../_common/repository";
+import { UserAccessEntity } from "../_common/repository/entities/user-access.entity";
+import { UserAccessRepository } from "../_common/repository/user-access.repository";
+import { UsersController } from "./users.controller";
+import { UsersService } from "./users.service";
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([UserEntity]),
-    JwtModule.register({}),
-  ],
+  imports: [TypeOrmModule.forFeature([UserEntity, UserAccessEntity]), JwtModule.register({})],
   controllers: [UsersController],
-  providers: [
-    UsersService,
-    UserRepository,
-    JwtAuthGuard,
-  ],
+  providers: [UsersService, UserRepository, UserAccessRepository],
   exports: [UsersService],
 })
 export class UsersModule {}

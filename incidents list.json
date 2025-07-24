@@ -1,0 +1,716 @@
+ incidents list
+{
+    "data": [
+        {
+            "id": "bcd859d4-5c41-11f0-ae2b-0242ac150002",
+            "incident_code": "005",
+            "incident_name": "Descansos Trabajado",
+            "incident_status": 0,
+            "created_at": "2025-07-09T01:23:05.936Z",
+            "updated_at": "2025-07-11T21:36:34.000Z"
+        },
+        {
+            "id": "bcd8630d-5c41-11f0-ae2b-0242ac150002",
+            "incident_code": "008",
+            "incident_name": "Prima Dominical",
+            "incident_status": 1,
+            "created_at": "2025-07-09T01:23:05.936Z",
+            "updated_at": "2025-07-09T01:23:05.936Z"
+        },
+        {
+            "id": "bcd86656-5c41-11f0-ae2b-0242ac150002",
+            "incident_code": "009",
+            "incident_name": "Dias Devueltos",
+            "incident_status": 1,
+            "created_at": "2025-07-09T01:23:05.936Z",
+            "updated_at": "2025-07-09T01:23:05.936Z"
+        },
+        {
+            "id": "bcd8685b-5c41-11f0-ae2b-0242ac150002",
+            "incident_code": "215",
+            "incident_name": "Faltas",
+            "incident_status": 1,
+            "created_at": "2025-07-09T01:23:05.936Z",
+            "updated_at": "2025-07-09T01:23:05.936Z"
+        }
+    ]
+
+  oficinas
+   "data": [
+        {
+            "id": "9113799f-5c41-11f0-ae2b-0242ac150002",
+            "company_id": "7f2e9d37-5c41-11f0-ae2b-0242ac150002",
+            "company_name": "Telestar S.A.",
+            "office_name": "Culiacan",
+            "office_status": 1,
+            "created_at": "2025-07-09T01:21:52.495Z",
+            "updated_at": "2025-07-09T01:21:52.495Z"
+        },
+        {
+            "id": "9113b814-5c41-11f0-ae2b-0242ac150002",
+            "company_id": "7f2e9d37-5c41-11f0-ae2b-0242ac150002",
+            "company_name": "Telestar S.A.",
+            "office_name": "Durango",
+            "office_status": 1,
+            "created_at": "2025-07-09T01:21:52.495Z",
+            "updated_at": "2025-07-09T01:21:52.495Z"
+        },
+        {
+            "id": "9113be8f-5c41-11f0-ae2b-0242ac150002",
+            "company_id": "7f2e9d37-5c41-11f0-ae2b-0242ac150002",
+            "company_name": "Telestar S.A.",
+            "office_name": "Merida",
+            "office_status": 1,
+            "created_at": "2025-07-09T01:21:52.495Z",
+            "updated_at": "2025-07-09T01:21:52.495Z"
+        }
+    ],
+
+  Companie
+  {
+        "data": [
+            {
+                "id": "d6e5f059-6927-4681-a624-4f34e19bc646",
+                "company_name": "Televisión S.A.",
+                "company_status": 1,
+                "created_at": "2025-07-18T20:55:55.959Z",
+                "updated_at": "2025-07-18T16:55:55.922Z"
+            },
+            {
+                "id": "e6039020-e77f-4f7e-ae35-d335db7ea54f",
+                "company_name": "Televisión Mexicana S.A.",
+                "company_status": 1,
+                "created_at": "2025-07-18T20:52:37.248Z",
+                "updated_at": "2025-07-18T16:52:37.232Z"
+            },
+            {
+                "id": "7f2e9d37-5c41-11f0-ae2b-0242ac150002",
+                "company_name": "Telestar S.A.",
+                "company_status": 1,
+                "created_at": "2025-07-09T01:21:22.485Z",
+                "updated_at": "2025-07-11T22:40:27.000Z"
+            }
+        ],
+        {
+            "office_id": "9113be8f-5c41-11f0-ae2b-0242ac150002",
+            "employee_code": 1006,
+            "employee_name": "Durango Mesias",
+            "employee_type": "Técnico en Teatro",
+            "employee_status": 1
+        }
+        // EMPLOYES
+        "data": [
+            {
+                "id": "36d6689d-bd62-48d4-bafb-6b0670ce8c8f",
+                "office_id": "9113be8f-5c41-11f0-ae2b-0242ac150002",
+                "employee_code": 1006,
+                "employee_name": "Durango Mesias",
+                "employee_type": "SIND",
+                "employee_status": 1,
+                "created_at": "2025-07-18T21:20:40.364Z",
+                "updated_at": "2025-07-18T17:20:40.339Z"
+            },
+            {
+                "id": "71e6a6dc-ddca-407c-a182-68ef07083fed",
+                "office_id": "9113b814-5c41-11f0-ae2b-0242ac150002",
+                "employee_code": 1005,
+                "employee_name": "Maikoles",
+                "employee_type": "SIND",
+                "employee_status": 1,
+                "created_at": "2025-07-18T21:17:58.880Z",
+                "updated_at": "2025-07-18T17:17:58.847Z"
+            },
+            {
+                "id": "e92a0536-9f7c-482c-bcb6-5062dc6a3e31",
+                "office_id": "9113799f-5c41-11f0-ae2b-0242ac150002",
+                "employee_code": 1004,
+                "employee_name": "Maikol Gonzalez",
+                "employee_type": "SIND",
+                "employee_status": 1,
+                "created_at": "2025-07-18T21:15:24.022Z",
+                "updated_at": "2025-07-18T17:15:23.989Z"
+            },
+            {
+                "id": "baa28d63-5c41-11f0-ae2b-0242ac150002",
+                "office_id": "9113799f-5c41-11f0-ae2b-0242ac150002",
+                "employee_code": 1001,
+                "employee_name": "Juan Pérez",
+                "employee_type": "SIND",
+                "employee_status": 0,
+                "created_at": "2025-07-09T01:23:02.227Z",
+                "updated_at": "2025-07-11T22:25:28.000Z"
+            },
+            {
+                "id": "baa2b88e-5c41-11f0-ae2b-0242ac150002",
+                "office_id": "9113799f-5c41-11f0-ae2b-0242ac150002",
+                "employee_code": 1002,
+                "employee_name": "Luis Suarez",
+                "employee_type": "SIND",
+                "employee_status": 1,
+                "created_at": "2025-07-09T01:23:02.227Z",
+                "updated_at": "2025-07-09T01:23:02.227Z"
+            },
+            {
+                "id": "baa2c3c1-5c41-11f0-ae2b-0242ac150002",
+                "office_id": "9113799f-5c41-11f0-ae2b-0242ac150002",
+                "employee_code": 1003,
+                "employee_name": "Manuel Garcia",
+                "employee_type": "CONF",
+                "employee_status": 1,
+                "created_at": "2025-07-09T01:23:02.227Z",
+                "updated_at": "2025-07-09T01:23:02.227Z"
+            }
+        ],
+        // Calendar
+        [
+            {
+                "id": 1,
+                "month": "1A. ENE",
+                "period": "2025001",
+                "range": "al miercoles 25 diciembre",
+                "incidentSubmission": "2024-12-26T04:42:45.000Z",
+                "process": "2024-12-27T04:42:45.000Z",
+                "policyGeneration": "2024-12-27T04:42:45.000Z",
+                "payment": "2025-01-03T04:42:45.000Z"
+            },
+            {
+                "id": 2,
+                "month": "2A. ENE",
+                "period": "2025002",
+                "range": "jueves 26 diciembre al jueves 2 enero",
+                "incidentSubmission": "2025-01-03T04:42:45.000Z",
+                "process": "2025-01-06T04:42:45.000Z",
+                "policyGeneration": "2025-01-06T04:42:45.000Z",
+                "payment": "2025-01-10T04:42:45.000Z"
+            },
+            {
+                "id": 3,
+                "month": "3A. ENE",
+                "period": "2025003",
+                "range": "viernes 3 enero al jueves 9 enero",
+                "incidentSubmission": "2025-01-10T04:42:45.000Z",
+                "process": "2025-01-13T04:42:45.000Z",
+                "policyGeneration": "2025-01-13T04:42:45.000Z",
+                "payment": "2025-01-17T04:42:45.000Z"
+            },
+            {
+                "id": 4,
+                "month": "4A. ENE",
+                "period": "2025004",
+                "range": "viernes 10 enero al miercoles 15 enero",
+                "incidentSubmission": "2025-01-16T04:42:45.000Z",
+                "process": "2025-01-17T04:42:45.000Z",
+                "policyGeneration": "2025-01-17T04:42:45.000Z",
+                "payment": "2025-01-24T04:42:45.000Z"
+            },
+            {
+                "id": 5,
+                "month": "5A. ENE",
+                "period": "2025005",
+                "range": "jueves 16 enero al domingo 19 enero",
+                "incidentSubmission": "2025-01-20T04:42:45.000Z",
+                "process": "2025-01-21T04:42:45.000Z",
+                "policyGeneration": "2025-01-21T04:42:45.000Z",
+                "payment": "2025-01-31T04:42:45.000Z"
+            },
+            {
+                "id": 6,
+                "month": "1A. FEB",
+                "period": "2025006",
+                "range": "lunes 20 enero al miercoles 29 enero",
+                "incidentSubmission": "2025-01-30T04:42:45.000Z",
+                "process": "2025-01-31T04:42:45.000Z",
+                "policyGeneration": "2025-01-31T04:42:45.000Z",
+                "payment": "2025-02-07T04:42:45.000Z"
+            },
+            {
+                "id": 7,
+                "month": "2A. FEB",
+                "period": "2025007",
+                "range": "jueves 30 enero al jueves 6 febrero",
+                "incidentSubmission": "2025-02-07T04:42:45.000Z",
+                "process": "2025-02-10T04:42:45.000Z",
+                "policyGeneration": "2025-02-10T04:42:45.000Z",
+                "payment": "2025-02-14T04:42:45.000Z"
+            },
+            {
+                "id": 8,
+                "month": "3A. FEB",
+                "period": "2025008",
+                "range": "viernes 7 febrero al miercoles 12 febrero",
+                "incidentSubmission": "2025-02-13T04:42:45.000Z",
+                "process": "2025-02-14T04:42:45.000Z",
+                "policyGeneration": "2025-02-14T04:42:45.000Z",
+                "payment": "2025-02-21T04:42:45.000Z"
+            },
+            {
+                "id": 9,
+                "month": "4A. FEB",
+                "period": "2025009",
+                "range": "jueves 13 febrero al domingo 16 febrero",
+                "incidentSubmission": "2025-02-17T04:42:45.000Z",
+                "process": "2025-02-18T04:42:45.000Z",
+                "policyGeneration": "2025-02-18T04:42:45.000Z",
+                "payment": "2025-02-28T04:42:45.000Z"
+            },
+            {
+                "id": 10,
+                "month": "1A. MAR",
+                "period": "2025010",
+                "range": "lunes 17 febrero al jueves 27 febrero",
+                "incidentSubmission": "2025-02-28T04:42:45.000Z",
+                "process": "2025-03-03T04:42:45.000Z",
+                "policyGeneration": "2025-03-03T04:42:45.000Z",
+                "payment": "2025-03-07T04:42:45.000Z"
+            },
+            {
+                "id": 11,
+                "month": "2A. MAR",
+                "period": "2025011",
+                "range": "viernes 28 febrero al jueves 6 marzo",
+                "incidentSubmission": "2025-03-07T04:42:45.000Z",
+                "process": "2025-03-10T04:42:45.000Z",
+                "policyGeneration": "2025-03-10T04:42:45.000Z",
+                "payment": "2025-03-14T04:42:45.000Z"
+            },
+            {
+                "id": 12,
+                "month": "3A. MAR",
+                "period": "2025012",
+                "range": "viernes 7 marzo al miercoles 12 marzo",
+                "incidentSubmission": "2025-03-13T04:42:45.000Z",
+                "process": "2025-03-14T04:42:45.000Z",
+                "policyGeneration": "2025-03-14T04:42:45.000Z",
+                "payment": "2025-03-21T04:42:45.000Z"
+            },
+            {
+                "id": 13,
+                "month": "4A. MAR",
+                "period": "2025013",
+                "range": "jueves 13 marzo al lunes 17 marzo",
+                "incidentSubmission": "2025-03-18T04:42:45.000Z",
+                "process": "2025-03-19T04:42:45.000Z",
+                "policyGeneration": "2025-03-19T04:42:45.000Z",
+                "payment": "2025-03-28T04:42:45.000Z"
+            },
+            {
+                "id": 14,
+                "month": "1A ABR",
+                "period": "2025014",
+                "range": "martes 18 marzo al jueves 27 marzo",
+                "incidentSubmission": "2025-03-28T04:42:45.000Z",
+                "process": "2025-03-31T04:42:45.000Z",
+                "policyGeneration": "2025-03-31T04:42:45.000Z",
+                "payment": "2025-04-04T04:42:45.000Z"
+            },
+            {
+                "id": 15,
+                "month": "2A. ABR",
+                "period": "2025015",
+                "range": "viernes 28 marzo al jueves 3 abril",
+                "incidentSubmission": "2025-04-04T04:42:45.000Z",
+                "process": "2025-04-07T04:42:45.000Z",
+                "policyGeneration": "2025-04-07T04:42:45.000Z",
+                "payment": "2025-04-11T04:42:45.000Z"
+            },
+            {
+                "id": 16,
+                "month": "3A. ABR",
+                "period": "2025016",
+                "range": "viernes 4 abril al martes 8 abril",
+                "incidentSubmission": "2025-04-09T04:42:45.000Z",
+                "process": "2025-04-10T04:42:45.000Z",
+                "policyGeneration": "2025-04-10T04:42:45.000Z",
+                "payment": "2025-04-16T04:42:45.000Z"
+            },
+            {
+                "id": 17,
+                "month": "4A. ABR",
+                "period": "2025017",
+                "range": "miercoles 9 abril al martes 15 abril",
+                "incidentSubmission": "2025-04-16T04:42:45.000Z",
+                "process": "2025-04-21T04:42:45.000Z",
+                "policyGeneration": "2025-04-21T04:42:45.000Z",
+                "payment": "2025-04-25T04:42:45.000Z"
+            },
+            {
+                "id": 18,
+                "month": "1A. MAY",
+                "period": "2025018",
+                "range": "mieroles 16 abril al miercoles 23 abril",
+                "incidentSubmission": "2025-04-24T04:42:45.000Z",
+                "process": "2025-04-25T04:42:45.000Z",
+                "policyGeneration": "2025-04-25T04:42:45.000Z",
+                "payment": "2025-05-02T04:42:45.000Z"
+            },
+            {
+                "id": 19,
+                "month": "2A. MAY",
+                "period": "2025019",
+                "range": "jueves 24 abril al jueves 1 mayo",
+                "incidentSubmission": "2025-05-02T04:42:45.000Z",
+                "process": "2025-05-05T04:42:45.000Z",
+                "policyGeneration": "2025-05-05T04:42:45.000Z",
+                "payment": "2025-05-09T04:42:45.000Z"
+            },
+            {
+                "id": 20,
+                "month": "3A. MAY",
+                "period": "2025020",
+                "range": "viernes 2 mayo al jueves 8 mayo",
+                "incidentSubmission": "2025-05-09T04:42:45.000Z",
+                "process": "2025-05-12T04:42:45.000Z",
+                "policyGeneration": "2025-05-12T04:42:45.000Z",
+                "payment": "2025-05-16T04:42:45.000Z"
+            },
+            {
+                "id": 21,
+                "month": "4A. MAY",
+                "period": "2025021",
+                "range": "viernes 9 mayo al miercoles 14 mayo",
+                "incidentSubmission": "2025-05-15T04:42:45.000Z",
+                "process": "2025-05-16T04:42:45.000Z",
+                "policyGeneration": "2025-05-16T04:42:45.000Z",
+                "payment": "2025-05-23T04:42:45.000Z"
+            },
+            {
+                "id": 22,
+                "month": "5A. MAY",
+                "period": "2025022",
+                "range": "jueves 15 mayo al domingo 18 mayo",
+                "incidentSubmission": "2025-05-19T04:42:45.000Z",
+                "process": "2025-05-20T04:42:45.000Z",
+                "policyGeneration": "2025-05-20T04:42:45.000Z",
+                "payment": "2025-05-30T04:42:45.000Z"
+            },
+            {
+                "id": 23,
+                "month": "1A. JUN",
+                "period": "2025023",
+                "range": "lunes 19 mayo al jueffes 29 mayo",
+                "incidentSubmission": "2025-05-30T04:42:45.000Z",
+                "process": "2025-06-02T04:42:45.000Z",
+                "policyGeneration": "2025-06-02T04:42:45.000Z",
+                "payment": "2025-06-06T04:42:45.000Z"
+            },
+            {
+                "id": 24,
+                "month": "2A. JUN",
+                "period": "2025024",
+                "range": "viernes 30 mayo al jueves 5 junio",
+                "incidentSubmission": "2025-06-06T04:42:45.000Z",
+                "process": "2025-06-09T04:42:45.000Z",
+                "policyGeneration": "2025-06-09T04:42:45.000Z",
+                "payment": "2025-06-13T04:42:45.000Z"
+            },
+            {
+                "id": 25,
+                "month": "3A. JUN",
+                "period": "2025025",
+                "range": "viernes 6 al jueves 12 junio",
+                "incidentSubmission": "2025-06-13T04:42:45.000Z",
+                "process": "2025-06-16T04:42:45.000Z",
+                "policyGeneration": "2025-06-16T04:42:45.000Z",
+                "payment": "2025-06-20T04:42:45.000Z"
+            },
+            {
+                "id": 26,
+                "month": "4A. JUN",
+                "period": "2025026",
+                "range": "viernes 13 junio al mates 17 junio",
+                "incidentSubmission": "2025-06-18T04:42:45.000Z",
+                "process": "2025-06-19T04:42:45.000Z",
+                "policyGeneration": "2025-06-19T04:42:45.000Z",
+                "payment": "2025-06-27T04:42:45.000Z"
+            },
+            {
+                "id": 27,
+                "month": "1A. JUL",
+                "period": "2025027",
+                "range": "miercoles 18 junio al jueves 26 junio",
+                "incidentSubmission": "2025-06-27T04:42:45.000Z",
+                "process": "2025-06-30T04:42:45.000Z",
+                "policyGeneration": "2025-06-30T04:42:45.000Z",
+                "payment": "2025-07-04T04:42:45.000Z"
+            },
+            {
+                "id": 28,
+                "month": "2A. JUL",
+                "period": "2025028",
+                "range": "viernes 27 junio al jueves 3 julio",
+                "incidentSubmission": "2025-07-04T04:42:45.000Z",
+                "process": "2025-07-07T04:42:45.000Z",
+                "policyGeneration": "2025-07-07T04:42:45.000Z",
+                "payment": "2025-07-11T04:42:45.000Z"
+            },
+            {
+                "id": 29,
+                "month": "3A. JUL",
+                "period": "2025029",
+                "range": "viernes 4 julio al jueves 10 julio",
+                "incidentSubmission": "2025-07-11T04:42:45.000Z",
+                "process": "2025-07-14T04:42:45.000Z",
+                "policyGeneration": "2025-07-14T04:42:45.000Z",
+                "payment": "2025-07-18T04:42:45.000Z"
+            },
+            {
+                "id": 30,
+                "month": "4A. JUL",
+                "period": "2025030",
+                "range": "viernes 11 julio al jueves 17 julio",
+                "incidentSubmission": "2025-07-18T04:42:45.000Z",
+                "process": "2025-07-21T04:42:45.000Z",
+                "policyGeneration": "2025-07-21T04:42:45.000Z",
+                "payment": "2025-07-25T04:42:45.000Z"
+            },
+            {
+                "id": 31,
+                "month": "1A. AGO",
+                "period": "2025031",
+                "range": "viernes 18 al jueves 24 julio",
+                "incidentSubmission": "2025-07-25T04:42:45.000Z",
+                "process": "2025-07-28T04:42:45.000Z",
+                "policyGeneration": "2025-07-28T04:42:45.000Z",
+                "payment": "2025-08-01T04:42:45.000Z"
+            },
+            {
+                "id": 32,
+                "month": "2A. AGO",
+                "period": "2025032",
+                "range": "viernes 25 julio al jueves 31 julio",
+                "incidentSubmission": "2025-08-01T04:42:45.000Z",
+                "process": "2025-08-04T04:42:45.000Z",
+                "policyGeneration": "2025-08-04T04:42:45.000Z",
+                "payment": "2025-08-08T04:42:45.000Z"
+            },
+            {
+                "id": 33,
+                "month": "3A. AGO",
+                "period": "2025033",
+                "range": "viernes 1 agosto a jueves 7 agosto",
+                "incidentSubmission": "2025-08-08T04:42:45.000Z",
+                "process": "2025-08-11T04:42:45.000Z",
+                "policyGeneration": "2025-08-11T04:42:45.000Z",
+                "payment": "2025-08-15T04:42:45.000Z"
+            },
+            {
+                "id": 34,
+                "month": "4A. AGO",
+                "period": "2025034",
+                "range": "viernes 8 agosto al miercoles 13 agosto",
+                "incidentSubmission": "2025-08-14T04:42:45.000Z",
+                "process": "2025-08-15T04:42:45.000Z",
+                "policyGeneration": "2025-08-15T04:42:45.000Z",
+                "payment": "2025-08-22T04:42:45.000Z"
+            },
+            {
+                "id": 35,
+                "month": "5A. AGO",
+                "period": "2025035",
+                "range": "jueves 14 agosto al lunes 18 agosto",
+                "incidentSubmission": "2025-08-19T04:42:45.000Z",
+                "process": "2025-08-20T04:42:45.000Z",
+                "policyGeneration": "2025-08-20T04:42:45.000Z",
+                "payment": "2025-08-29T04:42:45.000Z"
+            },
+            {
+                "id": 36,
+                "month": "1A. SEP",
+                "period": "2025036",
+                "range": "martes 19 agosto al jueves 28 agosto",
+                "incidentSubmission": "2025-08-29T04:42:45.000Z",
+                "process": "2025-09-01T04:42:45.000Z",
+                "policyGeneration": "2025-09-01T04:42:45.000Z",
+                "payment": "2025-09-05T04:42:45.000Z"
+            },
+            {
+                "id": 37,
+                "month": "2A. SEP",
+                "period": "2025037",
+                "range": "viernes 29 agosto al jueves 4 septiembre",
+                "incidentSubmission": "2025-09-05T04:42:45.000Z",
+                "process": "2025-09-08T04:42:45.000Z",
+                "policyGeneration": "2025-09-08T04:42:45.000Z",
+                "payment": "2025-09-12T04:42:45.000Z"
+            },
+            {
+                "id": 38,
+                "month": "3A. SEP",
+                "period": "2025038",
+                "range": "viernes 5 septiembre al miercoles 10 septiembre",
+                "incidentSubmission": "2025-09-11T04:42:45.000Z",
+                "process": "2025-09-12T04:42:45.000Z",
+                "policyGeneration": "2025-09-12T04:42:45.000Z",
+                "payment": "2025-09-19T04:42:45.000Z"
+            },
+            {
+                "id": 39,
+                "month": "4A. SEP",
+                "period": "2025039",
+                "range": "jueves 11 septiembre al martes 16 septiembre",
+                "incidentSubmission": "2025-09-17T04:42:45.000Z",
+                "process": "2025-09-18T04:42:45.000Z",
+                "policyGeneration": "2025-09-18T04:42:45.000Z",
+                "payment": "2025-09-26T04:42:45.000Z"
+            },
+            {
+                "id": 40,
+                "month": "1A. OCT",
+                "period": "2025040",
+                "range": "miercoles 17 septiembre al jueves 25 septiembre",
+                "incidentSubmission": "2025-09-26T04:42:45.000Z",
+                "process": "2025-09-29T04:42:45.000Z",
+                "policyGeneration": "2025-09-29T04:42:45.000Z",
+                "payment": "2025-10-03T04:42:45.000Z"
+            },
+            {
+                "id": 41,
+                "month": "2A. OCT",
+                "period": "2025041",
+                "range": "viernes 26 septiembre al jueves 2 octubre",
+                "incidentSubmission": "2025-10-03T04:42:45.000Z",
+                "process": "2025-10-06T04:42:45.000Z",
+                "policyGeneration": "2025-10-06T04:42:45.000Z",
+                "payment": "2025-10-10T04:42:45.000Z"
+            },
+            {
+                "id": 42,
+                "month": "3A. OCT",
+                "period": "2025042",
+                "range": "viernes 3 octubre al jueves 9 octubre",
+                "incidentSubmission": "2025-10-10T04:42:45.000Z",
+                "process": "2025-10-13T04:42:45.000Z",
+                "policyGeneration": "2025-10-13T04:42:45.000Z",
+                "payment": "2025-10-17T04:42:45.000Z"
+            },
+            {
+                "id": 43,
+                "month": "4A. OCT",
+                "period": "2025043",
+                "range": "viernes 10 octubre al miercoles 15 octubre",
+                "incidentSubmission": "2025-10-16T04:42:45.000Z",
+                "process": "2025-10-17T04:42:45.000Z",
+                "policyGeneration": "2025-10-17T04:42:45.000Z",
+                "payment": "2025-10-24T04:42:45.000Z"
+            },
+            {
+                "id": 44,
+                "month": "5A. OCT",
+                "period": "2025044",
+                "range": "jueves 16 octubre al domingo 19 octubre",
+                "incidentSubmission": "2025-10-20T04:42:45.000Z",
+                "process": "2025-10-21T04:42:45.000Z",
+                "policyGeneration": "2025-10-21T04:42:45.000Z",
+                "payment": "2025-10-31T04:42:45.000Z"
+            },
+            {
+                "id": 45,
+                "month": "1A. NOV",
+                "period": "2025045",
+                "range": "lunes 20 octubre al jueves 30 octubre",
+                "incidentSubmission": "2025-10-31T04:42:45.000Z",
+                "process": "2025-11-03T04:42:45.000Z",
+                "policyGeneration": "2025-11-03T04:42:45.000Z",
+                "payment": "2025-11-07T04:42:45.000Z"
+            },
+            {
+                "id": 46,
+                "month": "2A. NOV",
+                "period": "2025046",
+                "range": "viernes 31 octubre al jueves 6 noviembre",
+                "incidentSubmission": "2025-11-07T04:42:45.000Z",
+                "process": "2025-11-10T04:42:45.000Z",
+                "policyGeneration": "2025-11-10T04:42:45.000Z",
+                "payment": "2025-11-14T04:42:45.000Z"
+            },
+            {
+                "id": 47,
+                "month": "3A. NOV",
+                "period": "2025047",
+                "range": "viernes 7 noviembre al miercoles 12 noviembre",
+                "incidentSubmission": "2025-11-13T04:42:45.000Z",
+                "process": "2025-11-14T04:42:45.000Z",
+                "policyGeneration": "2025-11-14T04:42:45.000Z",
+                "payment": "2025-11-21T04:42:45.000Z"
+            },
+            {
+                "id": 48,
+                "month": "4A. NOV",
+                "period": "2025048",
+                "range": "jueves 13 noviembre al martes 18 noviembre",
+                "incidentSubmission": "2025-11-19T04:42:45.000Z",
+                "process": "2025-11-20T04:42:45.000Z",
+                "policyGeneration": "2025-11-20T04:42:45.000Z",
+                "payment": "2025-11-28T04:42:45.000Z"
+            },
+            {
+                "id": 49,
+                "month": "1A. DIC",
+                "period": "2025049",
+                "range": "miercoles 19 noviembre al jueves 27 noviembre",
+                "incidentSubmission": "2025-11-28T04:42:45.000Z",
+                "process": "2025-12-01T04:42:45.000Z",
+                "policyGeneration": "2025-12-01T04:42:45.000Z",
+                "payment": "2025-12-05T04:42:45.000Z"
+            },
+            {
+                "id": 50,
+                "month": "2A. DIC",
+                "period": "2025050",
+                "range": "viernes 28 noviembre al miercoles 3 diciembre  ",
+                "incidentSubmission": "2025-12-04T04:42:45.000Z",
+                "process": "2025-12-05T04:42:45.000Z",
+                "policyGeneration": "2025-12-05T04:42:45.000Z",
+                "payment": "2025-12-11T04:42:45.000Z"
+            },
+            {
+                "id": 51,
+                "month": "3A. DIC",
+                "period": "2025051",
+                "range": "jueves 4 diciembre al martes 9 diciembre",
+                "incidentSubmission": "2025-12-10T04:42:45.000Z",
+                "process": "2025-12-11T04:42:45.000Z",
+                "policyGeneration": "2025-12-11T04:42:45.000Z",
+                "payment": "2025-12-19T04:42:45.000Z"
+            },
+            {
+                "id": 52,
+                "month": "4A. DIC",
+                "period": "2025052",
+                "range": "miercoles 10 diciembre al domingo 14 diciembre",
+                "incidentSubmission": "2025-12-15T04:42:45.000Z",
+                "process": "2025-12-16T04:42:45.000Z",
+                "policyGeneration": "2025-12-17T04:42:45.000Z",
+                "payment": "2025-12-26T04:42:45.000Z"
+            }
+        ]
+        // User data for registration
+        {
+            "user_name": "Claudio Figueroa ",
+            "user_email": "cfigueroa.RH@ejemplo.com",
+            "user_password": "miContraseña123",
+            "user_status": 1,
+            "user_rol": 1,
+            "company_id": "d6e5f059-6927-4681-a624-4f34e19bc646",
+            "office_id": "9113799f-5c41-11f0-ae2b-0242ac150002"
+        }
+
+{
+            "user_name": "Claudio Figueroa - Televisión Mexicana",
+            "user_email": "cfigueroa.RH2@ejemplo.com",
+            "user_password": "miContraseña123",
+            "user_status": 1,
+            "user_rol": 1,
+            "company_id": "e6039020-e77f-4f7e-ae35-d335db7ea54f",
+            "office_id": "9113b814-5c41-11f0-ae2b-0242ac150002"
+        }
+
+{
+            "user_name": "Claudio Figueroa - Telestar S.A.",
+            "user_email": "cfigueroa.RH3@ejemplo.com",
+            "user_password": "miContraseña123",
+            "user_status": 1,
+            "user_rol": 1,
+            "company_id": "7f2e9d37-5c41-11f0-ae2b-0242ac150002",
+            "office_id": "9113be8f-5c41-11f0-ae2b-0242ac150002"
+        }

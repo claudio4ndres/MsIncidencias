@@ -10,10 +10,12 @@ import {
   Put,
   Query,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiOperation,
@@ -22,6 +24,10 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
+import { Roles } from "@src/_common/decorators";
+import { Role } from "@src/_common/enums";
+import { TokenGuard } from "@src/_common/guards";
+import { RolesGuard } from "@src/_common/guards/roles.guard";
 import { Calendar } from "@src/_common/repository/entities/calendar.entity";
 import { CalendarService } from "./calendar.service";
 import {
@@ -35,8 +41,9 @@ const XLSX = require("xlsx");
 
 @Controller("calendar")
 @ApiTags("Calendar - Nóminas")
-//@UseGuards(JwtAuthGuard)
-//@ApiBearerAuth()
+@UseGuards(TokenGuard, RolesGuard)
+@Roles(Role.ADMIN, Role.GERENTE)
+@ApiBearerAuth()
 export class CalendarController {
   constructor(private readonly calendarService: CalendarService) {}
 

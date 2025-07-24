@@ -15,7 +15,10 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
+import { Roles } from "@src/_common/decorators";
+import { Role } from "@src/_common/enums";
 import { TokenGuard } from "@src/_common/guards";
+import { RolesGuard } from "@src/_common/guards/roles.guard";
 import {
   PaginatedResponseDto,
   PaginationQueryDto,
@@ -30,7 +33,8 @@ import { EmployeesService } from "./employees.service";
 
 @ApiTags("Empleados")
 @Controller("employees")
-@UseGuards(TokenGuard)
+@UseGuards(TokenGuard, RolesGuard)
+@Roles(Role.ADMIN, Role.GERENTE)
 @ApiBearerAuth()
 export class EmployeesController {
   constructor(private readonly employeesService: EmployeesService) {}

@@ -55,6 +55,50 @@ export class GenerateCVVResponseDto {
   };
 }
 
+export class CurrentPeriodResponseDto {
+  @ApiProperty({ 
+    description: 'Period ID (UUID)',
+    example: '404177d7-a8b2-467a-8beb-ad3610618cda' 
+  })
+  id: string;
+
+  @ApiProperty({ 
+    description: 'Period name/identifier',
+    example: '2025031' 
+  })
+  periodName: string;
+
+  @ApiProperty({ 
+    description: 'Period start date',
+    example: '2025-07-18T04:00:00.000Z' 
+  })
+  periodStart: string;
+
+  @ApiProperty({ 
+    description: 'Period end date',
+    example: '2025-07-24T04:00:00.000Z' 
+  })
+  periodEnd: string;
+
+  @ApiProperty({ 
+    description: 'Period status',
+    example: 'ACTIVE' 
+  })
+  periodStatus: string;
+
+  @ApiProperty({ 
+    description: 'Creation date',
+    example: '2025-07-11T18:41:32.139Z' 
+  })
+  createdAt: string;
+
+  @ApiProperty({ 
+    description: 'Last update date',
+    example: '2025-07-18T15:27:52.524Z' 
+  })
+  updatedAt: string;
+}
+
 export class PeriodResponseDto {
   @ApiProperty({ 
     description: 'Calendar ID',
@@ -115,4 +159,16 @@ export class PeriodResponseDto {
     example: 52 
   })
   semanasEnAnio: number;
+
+  @ApiProperty({ 
+    description: 'Current period based on today\'s date (YYYYMMDD format)',
+    example: '20250722' 
+  })
+  periodoActual: string;
+
+  @ApiProperty({ 
+    description: 'Current ISO week number based on today\'s date',
+    example: 30 
+  })
+  semanaActual: number;
 }

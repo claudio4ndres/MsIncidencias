@@ -15,7 +15,10 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
+import { Roles } from "@src/_common/decorators";
+import { Role } from "@src/_common/enums";
 import { TokenGuard } from "@src/_common/guards";
+import { RolesGuard } from "@src/_common/guards/roles.guard";
 import {
   PaginatedResponseDto,
   PaginationQueryDto,
@@ -30,11 +33,11 @@ import {
 
 @ApiTags("Compañías")
 @Controller("companies")
-@UseGuards(TokenGuard)
+@UseGuards(TokenGuard, RolesGuard)
+@Roles(Role.ADMIN, Role.GERENTE)
 @ApiBearerAuth()
 export class CompaniesController {
   constructor(private readonly companiesService: CompaniesService) {}
-
   @Get()
   @ApiOperation({
     summary: "Obtener lista de compañías con paginación y búsqueda",
@@ -98,7 +101,7 @@ export class CompaniesController {
   ): Promise<{ message: string }> {
     return this.companiesService.remove(deleteCompanyDto.id);
   }
-
+  /*
   @Get("status/:status")
   @ApiOperation({ summary: "Obtener compañías por estado" })
   @ApiResponse({ status: 200, description: "Compañías obtenidas por estado" })
@@ -121,4 +124,5 @@ export class CompaniesController {
   async findWithUsers(@Param("id") id: string): Promise<CompanyResponseDto> {
     return this.companiesService.findWithUsers(id);
   }
+*/
 }

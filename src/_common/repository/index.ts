@@ -1,4 +1,5 @@
 // Entities
+export { AuditLog } from "./entities/audit-log.entity";
 export { Calendar } from "./entities/calendar.entity";
 export { CompanyEntity } from "./entities/company.entity";
 export { EmployeeEntity } from "./entities/employee.entity";
@@ -12,6 +13,7 @@ export { Holiday } from "./entities/holiday.entity";
 export { ApprovalEntity } from "./entities/approval.entity";
 
 // Repositories
+export { AuditLogRepository } from "./audit-log.repository";
 export { CalendarRepository } from "./calendar.repository";
 export { CompanyRepository } from "./company.repository";
 export { EmployeeRepository } from "./employee.repository";
