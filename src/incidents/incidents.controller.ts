@@ -34,11 +34,11 @@ import { IncidentsService } from "./incidents.service";
 @ApiTags("Incidentes")
 @Controller("incidents")
 @UseGuards(TokenGuard, RolesGuard)
-@Roles(Role.ADMIN, Role.GERENTE)
 @ApiBearerAuth()
 export class IncidentsController {
   constructor(private readonly incidentsService: IncidentsService) {}
 
+  @Roles(Role.ADMIN, Role.GERENTE, Role.RH)
   @Get()
   @ApiOperation({
     summary: "Obtener lista de incidentes con paginación y búsqueda",
@@ -114,7 +114,7 @@ export class IncidentsController {
   ): Promise<IncidentResponseDto> {
     return this.incidentsService.findWithMovements(id);
   }
-
+  @Roles(Role.ADMIN, Role.GERENTE)
   @Post()
   @ApiOperation({ summary: "Crear un nuevo incidente" })
   @ApiResponse({
@@ -132,7 +132,7 @@ export class IncidentsController {
   ): Promise<IncidentResponseDto> {
     return this.incidentsService.create(createIncidentDto);
   }
-
+  @Roles(Role.ADMIN, Role.GERENTE)
   @Put()
   @ApiOperation({ summary: "Actualizar un incidente" })
   @ApiResponse({
@@ -150,7 +150,7 @@ export class IncidentsController {
   ): Promise<IncidentResponseDto> {
     return this.incidentsService.update(updateIncidentDto);
   }
-
+  @Roles(Role.ADMIN, Role.GERENTE)
   @Delete()
   @ApiOperation({ summary: "Eliminar un incidente" })
   @ApiResponse({

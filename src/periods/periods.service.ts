@@ -1,12 +1,14 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
+import { PaginationQueryDto } from "@src/_common/dto/pagination.dto";
 import { CalendarRepository } from "@src/_common/repository/calendar.repository";
 import { Calendar } from "@src/_common/repository/entities/calendar.entity";
 import { MovementRepository } from "@src/_common/repository/movement.repository";
+import { Between } from "typeorm";
 import * as fs from "fs";
 import moment from "moment";
 import "moment/locale/es-mx";
 import * as path from "path";
-import { PeriodResponseDto } from "./dto/periods.dto";
+import { FindAllPeriodsResponse } from "./dto/periods.dto";
 
 // Configurar moment para usar locale español mexicano
 moment.locale("es-mx");
@@ -73,6 +75,7 @@ export class PeriodsService {
   }
 
   private parsePeriodRange(
+    
     rangeString: string,
     year: number
   ): { periodStart: Date; periodEnd: Date } {
@@ -206,127 +209,145 @@ export class PeriodsService {
     }
   }
 
-  async findAll(): Promise<PeriodResponseDto[]> {
-    const periods = await this.calendarRepository.findAll();
 
-    const updatedPeriods = periods.map((calendar) => {
-      let initialDate: moment.Moment;
-      const submissionYear = calendar.incidentSubmission.getFullYear();
 
-      try {
-        // Extraer la fecha inicial del rango dependiendo del formato
-        // Diversos formatos posibles:
-        // "jueves 26 diciembre al jueves 2 enero"
-        // "viernes 6 al jueves 12 junio"
-        // "viernes 1 agosto a jueves 7 agosto"
-        // "al miércoles 25 diciembre"
+  async findAllPeriodAndMovements(
+    paginationQuery: PaginationQueryDto
+  ): Promise<
+    FindAllPeriodsResponse & {
+      total: number;
+      page: number;
+      pageSize: number;
+      totalPages: number;
+    }
+  > {
+    const { page = 1, pageSize = 10, search = "" } = paginationQuery;
+    const skip = (page - 1) * pageSize;
 
-        if (calendar.range.includes(" al ") || calendar.range.includes(" a ")) {
-          // Intentar formato completo con mes: "jueves 26 diciembre al/a..."
-          let firstDateMatch = calendar.range.match(
-            /(\w+) (\d{1,2}) (\w+) a(?:l)?/
-          );
-          if (firstDateMatch) {
-            const [, , day, month] = firstDateMatch;
-            initialDate = moment(
-              `${day} ${month} ${submissionYear}`,
-              "D MMMM YYYY"
-            );
-          } else {
-            // Formato sin mes en la primera fecha: "viernes 6 al/a jueves 12 junio"
-            const partialMatch = calendar.range.match(
-              /(\w+) (\d{1,2}) a(?:l)? \w+ \d{1,2} (\w+)/
-            );
-            if (partialMatch) {
-              const [, , day, month] = partialMatch;
-              initialDate = moment(
-                `${day} ${month} ${submissionYear}`,
-                "D MMMM YYYY"
-              );
-            } else {
-              // Si no coincide, usar la fecha de incidentSubmission
-              initialDate = moment(calendar.incidentSubmission);
-            }
-          }
-        } else if (calendar.range.includes("al ")) {
-          // Formato: "al miércoles 25 diciembre"
-          const dateMatch = calendar.range.match(/al \w+ (\d{1,2}) (\w+)/);
-          if (dateMatch) {
-            const [, day, month] = dateMatch;
-            initialDate = moment(
-              `${day} ${month} ${submissionYear}`,
-              "D MMMM YYYY"
-            );
-          } else {
-            initialDate = moment(calendar.incidentSubmission);
-          }
-        } else {
-          // Fallback: usar la fecha de incidentSubmission
-          initialDate = moment(calendar.incidentSubmission);
-        }
+    console.log(
+      "PeriodsService.findAllPeriodAndMovements() - Iniciando consulta de calendarios con paginación y conteo de movimientos"
+    );
+    console.log("Parámetros:", { page, pageSize, search, skip });
 
-        // Ajuste lógico para casos diciembre-enero
-        // Si la fecha es en enero pero el rango menciona diciembre,
-        // asumimos que es del año anterior
-        if (initialDate.month() === 0 && calendar.range.includes("diciembre")) {
-          initialDate.subtract(1, "year");
-        }
-        // Si la fecha es en diciembre pero el incidentSubmission es del año siguiente,
-        // mantenemos el año de la fecha parseada
-        if (
-          initialDate.month() === 11 &&
-          moment(calendar.incidentSubmission).month() === 0
-        ) {
-          initialDate.year(submissionYear - 1);
-        }
-
-        // Calcular la semana ISO
-        const semana = initialDate.isValid() ? initialDate.isoWeek() : 1;
-
-        // Calcular las semanas en el año del submission
-        const semanasEnAnio = moment(
-          calendar.incidentSubmission
-        ).isoWeeksInYear();
-
-        return {
-          //id: calendar.id,
-          //month: calendar.month,
-          period: calendar.period,
-          //range: calendar.range,
-          //incidentSubmission: calendar.incidentSubmission,
-          //process: calendar.process,
-          //policyGeneration: calendar.policyGeneration,
-          //payment: calendar.payment,
-          semana,
-          semanasEnAnio,
-          periodoActual: moment().format("YYYYMMDD"),
-          semanaActual: moment().isoWeek(),
-        } as PeriodResponseDto;
-      } catch (error) {
-        console.error(
-          `Error parsing range for calendar ${calendar.id}: ${calendar.range}`,
-          error
-        );
-        // En caso de error, devolver datos básicos con semana por defecto
-        return {
-          id: calendar.id,
-          month: calendar.month,
-          period: calendar.period,
-          range: calendar.range,
-          incidentSubmission: calendar.incidentSubmission,
-          process: calendar.process,
-          policyGeneration: calendar.policyGeneration,
-          payment: calendar.payment,
-          semana: 1,
-          semanasEnAnio: 52,
-          periodoActual: moment().format("YYYYMMDD"),
-          semanaActual: moment().isoWeek(),
-        } as PeriodResponseDto;
-      }
+    const [calendars, total] = await this.calendarRepository.findAllPaginated({
+      skip,
+      take: pageSize,
+      order: { period: "ASC" },
+      search,
     });
 
-    return updatedPeriods;
+    console.log(
+      `PeriodsService.findAllPeriodAndMovements() - Calendarios obtenidos: ${calendars.length} de ${total} total`
+    );
+    console.log(
+      "Calendarios:",
+      calendars.map((c) => ({ id: c.id, period: c.period }))
+    );
+
+    // Procesar cada calendario para incluir el conteo de movimientos
+    const formattedPeriodsWithMovements = await Promise.all(
+      calendars.map(async (calendar) => {
+        const { periodStart, periodEnd } = this.parsePeriodRange(
+          calendar.range,
+          calendar.incidentSubmission.getFullYear()
+        );
+
+        // Contar movimientos en el rango de fechas del período
+        const movementsCount = await this.movementRepository.count({
+          where: {
+            incidenceDate: Between(periodStart, periodEnd),
+          },
+        });
+
+        console.log(
+          `Período ${calendar.period}: ${movementsCount} movimientos entre ${periodStart.toISOString()} y ${periodEnd.toISOString()}`
+        );
+
+        return {
+          id: String(calendar.id),
+          period_name: calendar.period,
+          period_start: periodStart.toISOString(),
+          period_end: periodEnd.toISOString(),
+          period_status: calendar.calendarStatus,
+          created_at: calendar.incidentSubmission.toISOString(),
+          updated_at: new Date().toISOString(),
+          movements_count: movementsCount,
+        };
+      })
+    );
+
+    const totalPages = Math.ceil(total / pageSize);
+
+    return {
+      periods: formattedPeriodsWithMovements,
+      total,
+      page,
+      pageSize,
+      totalPages,
+    };
   }
+  async findAll(
+    paginationQuery: PaginationQueryDto
+  ): Promise<
+    FindAllPeriodsResponse & {
+      total: number;
+      page: number;
+      pageSize: number;
+      totalPages: number;
+    }
+  > {
+    const { page = 1, pageSize = 10, search = "" } = paginationQuery;
+    const skip = (page - 1) * pageSize;
+
+    console.log(
+      "PeriodsService.findAll() - Iniciando consulta de calendarios con paginación"
+    );
+    console.log("Parámetros:", { page, pageSize, search, skip });
+
+    const [calendars, total] = await this.calendarRepository.findAllPaginated({
+      skip,
+      take: pageSize,
+      order: { period: "ASC" },
+      search,
+    });
+
+    console.log(
+      `PeriodsService.findAll() - Calendarios obtenidos: ${calendars.length} de ${total} total`
+    );
+    console.log(
+      "Calendarios:",
+      calendars.map((c) => ({ id: c.id, period: c.period }))
+    );
+
+    const formattedPeriods = calendars.map((calendar) => {
+      const { periodStart, periodEnd } = this.parsePeriodRange(
+        calendar.range,
+        calendar.incidentSubmission.getFullYear()
+      );
+
+      return {
+        id: String(calendar.id),
+        period_name: calendar.period,
+        period_start: periodStart.toISOString(),
+        period_end: periodEnd.toISOString(),
+        period_status: calendar.calendarStatus,
+        created_at: calendar.incidentSubmission.toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+    });
+
+    const totalPages = Math.ceil(total / pageSize);
+
+    return {
+      periods: formattedPeriods,
+      total,
+      page,
+      pageSize,
+      totalPages,
+    };
+  }
+
+
 
   async findMovementsByPeriod(period: string) {
     const calendar = await this.calendarRepository.findByPeriod(period);

@@ -28,6 +28,7 @@ import {
   UpdateMovementDto,
 } from "./dto/movement.dto";
 import { MovementValidationService } from "./services/movement-validation.service";
+import { PeriodService } from "./services/period.service";
 
 @Injectable()
 export class MovementsService {
@@ -39,7 +40,8 @@ export class MovementsService {
     private readonly userAccessRepository: UserAccessRepository,
     private readonly calendarRepository: CalendarRepository,
     private readonly holidayRepository: HolidayRepository,
-    private readonly movementValidationService: MovementValidationService
+    private readonly movementValidationService: MovementValidationService,
+    private readonly periodService: PeriodService
   ) {}
 
   async findAll(
@@ -179,15 +181,27 @@ export class MovementsService {
         dto: createMovementDto,
       });
 
+      // Determinar automáticamente el período basado en la fecha de incidencia
+      const incidenceDate = new Date(createMovementDto.incidence_date);
+      const determinedPeriod = await this.findPeriodByIncidenceDate(incidenceDate);
+      
+      if (!determinedPeriod) {
+        throw new BadRequestException(
+          `No se encontró un período válido para la fecha de incidencia: ${createMovementDto.incidence_date}`
+        );
+      }
+
+      console.log(`Período determinado automáticamente: ${determinedPeriod.period} para la fecha ${createMovementDto.incidence_date}`);
+
       // Generar ID para el movimiento
       const movementId = uuidv4();
 
-      // Validar reglas de negocio usando el servicio de validación
+      // Validar reglas de negocio usando el servicio de validación con el período determinado automáticamente
       await this.movementValidationService.validateMovementBusinessRules(
         createMovementDto.employee_code,
         createMovementDto.incident_code,
         createMovementDto.incidence_date,
-        createMovementDto.period,
+        determinedPeriod.period, // Usar el período determinado automáticamente
         employee,
         movementId,
         token.id
@@ -545,6 +559,30 @@ export class MovementsService {
       throw new InternalServerErrorException(
         "Error al obtener estadísticas de movimientos"
       );
+    }
+  }
+
+  /**
+   * Encuentra el período correspondiente a una fecha de incidencia
+   * usando el PeriodService existente
+   */
+  private async findPeriodByIncidenceDate(incidenceDate: Date): Promise<any | null> {
+    try {
+      console.log(`Buscando período para la fecha de incidencia: ${incidenceDate.toISOString()}`);
+      
+      // Usar el PeriodService existente que ya tiene la lógica implementada
+      const determinedPeriod = await this.periodService.findPeriodByDate(incidenceDate);
+      
+      if (determinedPeriod) {
+        console.log(`Período encontrado: ${determinedPeriod.period} para la fecha ${incidenceDate.toISOString()}`);
+        return determinedPeriod;
+      } else {
+        console.log(`No se encontró período para la fecha ${incidenceDate.toISOString()}`);
+        return null;
+      }
+    } catch (error) {
+      console.error(`Error al buscar período para fecha ${incidenceDate.toISOString()}:`, error);
+      throw new InternalServerErrorException("Error al determinar el período para la fecha de incidencia");
     }
   }
 

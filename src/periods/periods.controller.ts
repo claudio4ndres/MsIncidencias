@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Query,
   Res,
   UseGuards,
 } from "@nestjs/common";
@@ -18,9 +19,15 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
+import { PaginationQueryDto } from "@src/_common/dto/pagination.dto";
 import { TokenGuard } from "@src/_common/guards";
 import { Response } from "express";
-import { GenerateCVVDto, PeriodResponseDto, CurrentPeriodResponseDto } from "./dto/periods.dto";
+import {
+  CurrentPeriodResponseDto,
+  FindAllPeriodsResponse,
+  GenerateCVVDto,
+  PeriodFindAllResponseDto,
+} from "./dto/periods.dto";
 import { PeriodsService } from "./periods.service";
 
 @UseGuards(TokenGuard)
@@ -32,15 +39,25 @@ export class PeriodsController {
 
   @Get()
   @ApiOperation({
-    summary: "Obtener todos los períodos de nómina con información de semana",
+    summary: "Obtener todos los períodos de nómina con formato snake_case",
   })
   @ApiResponse({
     status: 200,
-    description: "Períodos obtenidos exitosamente",
-    type: [PeriodResponseDto],
+    description:
+      "Períodos obtenidos exitosamente con formato period_name, period_start, etc.",
+    type: [PeriodFindAllResponseDto],
   })
-  async findAll(): Promise<PeriodResponseDto[]> {
-    return this.periodsService.findAll();
+  async findAll(
+    @Query() paginationQuery: PaginationQueryDto
+  ): Promise<
+    FindAllPeriodsResponse & {
+      total: number;
+      page: number;
+      pageSize: number;
+      totalPages: number;
+    }
+  > {
+    return this.periodsService.findAll(paginationQuery);
   }
 
   @Get("current")
@@ -52,16 +69,16 @@ export class PeriodsController {
     description: "Período actual obtenido exitosamente",
     type: CurrentPeriodResponseDto,
   })
-  @ApiResponse({ 
-    status: 404, 
-    description: "No hay período actual" 
+  @ApiResponse({
+    status: 404,
+    description: "No hay período actual",
   })
   async findCurrent(): Promise<CurrentPeriodResponseDto> {
     const period = await this.periodsService.findCurrent();
-    
+
     if (!period) {
       throw new HttpException(
-        { message: 'No hay periodo actual' }, 
+        { message: "No hay periodo actual" },
         HttpStatus.NOT_FOUND
       );
     }
@@ -114,5 +131,29 @@ export class PeriodsController {
     });
 
     res.send(result.fileBuffer);
+  }
+
+  @Get("with-movements")
+  @ApiOperation({
+    summary:
+      "Obtener todos los períodos de nómina con formato snake_case y cantidad de movimientos asociados",
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      "Períodos obtenidos exitosamente con formato period_name, period_start, etc., incluyendo el conteo de movimientos",
+    type: [PeriodFindAllResponseDto],
+  })
+  async findAllPeriodAndMovements(
+    @Query() paginationQuery: PaginationQueryDto
+  ): Promise<
+    FindAllPeriodsResponse & {
+      total: number;
+      page: number;
+      pageSize: number;
+      totalPages: number;
+    }
+  > {
+    return this.periodsService.findAllPeriodAndMovements(paginationQuery);
   }
 }

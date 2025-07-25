@@ -34,11 +34,10 @@ import { EmployeesService } from "./employees.service";
 @ApiTags("Empleados")
 @Controller("employees")
 @UseGuards(TokenGuard, RolesGuard)
-@Roles(Role.ADMIN, Role.GERENTE)
 @ApiBearerAuth()
 export class EmployeesController {
   constructor(private readonly employeesService: EmployeesService) {}
-
+  @Roles(Role.ADMIN, Role.GERENTE, Role.RH)
   @Get()
   @ApiOperation({
     summary: "Obtener lista de empleados con paginación y búsqueda",
@@ -52,7 +51,7 @@ export class EmployeesController {
   ): Promise<PaginatedResponseDto<EmployeeResponseDto>> {
     return this.employeesService.findAll(paginationQuery);
   }
-
+  @Roles(Role.ADMIN, Role.GERENTE)
   @Get(":id")
   @ApiOperation({ summary: "Obtener un empleado por ID" })
   @ApiResponse({
@@ -64,7 +63,7 @@ export class EmployeesController {
   async findOne(@Param("id") id: string): Promise<EmployeeResponseDto> {
     return this.employeesService.findOne(id);
   }
-
+  @Roles(Role.ADMIN, Role.GERENTE)
   @Post()
   @ApiOperation({ summary: "Crear un nuevo empleado" })
   @ApiResponse({
@@ -78,7 +77,7 @@ export class EmployeesController {
   ): Promise<EmployeeResponseDto> {
     return this.employeesService.create(createEmployeeDto);
   }
-
+  @Roles(Role.ADMIN, Role.GERENTE)
   @Put()
   @ApiOperation({ summary: "Actualizar un empleado" })
   @ApiResponse({
@@ -92,7 +91,7 @@ export class EmployeesController {
   ): Promise<EmployeeResponseDto> {
     return this.employeesService.update(updateEmployeeDto);
   }
-
+  @Roles(Role.ADMIN, Role.GERENTE)
   @Delete()
   @ApiOperation({ summary: "Eliminar un empleado" })
   @ApiResponse({ status: 200, description: "Empleado eliminado exitosamente" })

@@ -116,7 +116,6 @@ export class MovementValidationService {
         );
         break;
       default:
-        // Para otros códigos, solo validar que la fecha esté en el rango del período
         break;
     }
   }
@@ -388,20 +387,7 @@ export class MovementValidationService {
    * Parsea el rango de fechas del período
    */
   private parsePeriodRange(rangeString: string): { start: Date; end: Date } {
-    // El formato parece ser "viernes 11 julio al jueves 17 julio"
-    // Vamos a intentar extraer las fechas de este formato
-
     try {
-      // Regex para extraer los números de día y meses
-      const regex = /(\w+)\s+(\d+)\s+(\w+)\s+al\s+(\w+)\s+(\d+)\s+(\w+)/i;
-      const match = rangeString.match(regex);
-
-      if (!match) {
-        throw new Error(`No se pudo parsear el rango: ${rangeString}`);
-      }
-
-      const [, , startDay, startMonth, , endDay, endMonth] = match;
-
       // Mapear nombres de meses en español a números
       const monthMap: { [key: string]: number } = {
         enero: 0,
@@ -420,37 +406,108 @@ export class MovementValidationService {
 
       const currentYear = new Date().getFullYear();
 
-      const startMonthNum = monthMap[startMonth.toLowerCase()];
-      const endMonthNum = monthMap[endMonth.toLowerCase()];
-
-      if (startMonthNum === undefined || endMonthNum === undefined) {
-        throw new Error(`Mes no reconocido en: ${rangeString}`);
+      // Caso 1: "al miércoles 25 diciembre" - Solo fecha final
+      const singleDateMatch = rangeString.match(/^al\s+(\w+)\s+(\d{1,2})\s+(\w+)$/i);
+      if (singleDateMatch) {
+        const [, , endDay, endMonth] = singleDateMatch;
+        const endMonthNum = monthMap[endMonth.toLowerCase()];
+        
+        if (endMonthNum === undefined) {
+          throw new Error(`Mes no reconocido: ${endMonth}`);
+        }
+        
+        // Para casos como "al 25 diciembre", asumimos que empieza el 1 del mismo mes
+        const start = moment()
+          .year(currentYear)
+          .month(endMonthNum)
+          .date(1)
+          .startOf("day")
+          .tz("America/Mexico_City")
+          .toDate();
+          
+        const end = moment()
+          .year(currentYear)
+          .month(endMonthNum)
+          .date(parseInt(endDay))
+          .endOf("day")
+          .tz("America/Mexico_City")
+          .toDate();
+        
+        return { start, end };
       }
-
-      const start = moment()
-        .year(currentYear)
-        .month(startMonthNum)
-        .date(parseInt(startDay))
-        .startOf("day")
-        .tz("America/Mexico_City")
-        .toDate();
-
-      const end = moment()
-        .year(currentYear)
-        .month(endMonthNum)
-        .date(parseInt(endDay))
-        .endOf("day")
-        .tz("America/Mexico_City")
-        .toDate();
-
-      return { start, end };
-    } catch (error) {
+      
+      // Caso 2: "viernes 6 al jueves 12 junio" - Sin mes en la primera fecha
+      const partialMatch = rangeString.match(/(\w+)\s+(\d{1,2})\s+al\s+(\w+)\s+(\d{1,2})\s+(\w+)/i);
+      if (partialMatch) {
+        const [, , startDay, , endDay, endMonth] = partialMatch;
+        const endMonthNum = monthMap[endMonth.toLowerCase()];
+        
+        if (endMonthNum === undefined) {
+          throw new Error(`Mes no reconocido: ${endMonth}`);
+        }
+        
+        // La fecha de inicio usa el mismo mes que la fecha final
+        const start = moment()
+          .year(currentYear)
+          .month(endMonthNum)
+          .date(parseInt(startDay))
+          .startOf("day")
+          .tz("America/Mexico_City")
+          .toDate();
+          
+        const end = moment()
+          .year(currentYear)
+          .month(endMonthNum)
+          .date(parseInt(endDay))
+          .endOf("day")
+          .tz("America/Mexico_City")
+          .toDate();
+        
+        return { start, end };
+      }
+      
+      // Caso 3: "jueves 26 diciembre al jueves 2 enero" - Formato completo
+      const fullMatch = rangeString.match(/(\w+)\s+(\d{1,2})\s+(\w+)\s+al?\s+(\w+)\s+(\d{1,2})\s+(\w+)/i);
+      if (fullMatch) {
+        const [, , startDay, startMonth, , endDay, endMonth] = fullMatch;
+        
+        const startMonthNum = monthMap[startMonth.toLowerCase()];
+        const endMonthNum = monthMap[endMonth.toLowerCase()];
+        
+        if (startMonthNum === undefined || endMonthNum === undefined) {
+          throw new Error(`Mes no reconocido en: ${rangeString}`);
+        }
+        
+        let startYear = currentYear;
+        let endYear = currentYear;
+        
+        // Ajustar años para casos como "diciembre al enero" (cruce de año)
+        if (startMonthNum === 11 && endMonthNum === 0) {
+          endYear = currentYear + 1;
+        } else if (startMonthNum > endMonthNum) {
+          endYear = currentYear + 1;
+        }
+        
+        const start = moment()
+          .year(startYear)
+          .month(startMonthNum)
+          .date(parseInt(startDay))
+          .startOf("day")
+          .tz("America/Mexico_City")
+          .toDate();
+          
+        const end = moment()
+          .year(endYear)
+          .month(endMonthNum)
+          .date(parseInt(endDay))
+          .endOf("day")
+          .tz("America/Mexico_City")
+          .toDate();
+        
+        return { start, end };
+      }
+      
       // Fallback: intentar formato DD/MM/YYYY
-      console.warn(
-        `Error parsing range '${rangeString}', trying fallback format:`,
-        error
-      );
-
       if (rangeString.includes(" - ")) {
         const [startStr, endStr] = rangeString.split(" - ");
         const start = moment(startStr, "DD/MM/YYYY")
@@ -463,7 +520,10 @@ export class MovementValidationService {
           .toDate();
         return { start, end };
       }
-
+      
+      throw new Error(`No se pudo parsear el rango: ${rangeString}`);
+    } catch (error) {
+      console.error(`Error parsing range '${rangeString}':`, error);
       throw new Error(`No se pudo parsear el rango de fechas: ${rangeString}`);
     }
   }

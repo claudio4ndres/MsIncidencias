@@ -23,6 +23,7 @@ import { MovementsController } from "./movements.controller";
 import { MovementsService } from "./movements.service";
 import { ApprovalService } from "./services/approval.service";
 import { MovementValidationService } from "./services/movement-validation.service";
+import { PeriodService } from "./services/period.service";
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { MovementValidationService } from "./services/movement-validation.servic
     UserAccessService,
     MovementValidationService,
     ApprovalService,
+    PeriodService,
   ],
   exports: [MovementsService],
 })

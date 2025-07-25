@@ -16,7 +16,49 @@ export class CalendarRepository {
   }
 
   async findAll(): Promise<Calendar[]> {
-    return await this.calendarRepository.find();
+    console.log('CalendarRepository.findAll() - Ejecutando consulta');
+    const result = await this.calendarRepository.find();
+    console.log(`CalendarRepository.findAll() - Registros encontrados: ${result.length}`);
+    console.log('Registros:', result.map(r => ({ id: r.id, period: r.period, status: r.calendarStatus })));
+    return result;
+  }
+
+  async findAllPaginated(options: {
+    skip?: number;
+    take?: number;
+    order?: any;
+    search?: string;
+  }): Promise<[Calendar[], number]> {
+    const { skip = 0, take = 10, order = { period: 'ASC' }, search = '' } = options;
+    
+    console.log('CalendarRepository.findAllPaginated() - Ejecutando consulta paginada');
+    console.log('Parámetros:', { skip, take, order, search });
+    
+    const queryBuilder = this.calendarRepository.createQueryBuilder('calendar');
+    
+    // Agregar filtro de búsqueda si se proporciona
+    if (search) {
+      queryBuilder.where('calendar.period LIKE :search OR calendar.month LIKE :search', {
+        search: `%${search}%`
+      });
+    }
+    
+    // Agregar ordenamiento
+    if (order) {
+      Object.keys(order).forEach(key => {
+        queryBuilder.addOrderBy(`calendar.${key}`, order[key]);
+      });
+    }
+    
+    // Agregar paginación
+    queryBuilder.skip(skip).take(take);
+    
+    const [result, total] = await queryBuilder.getManyAndCount();
+    
+    console.log(`CalendarRepository.findAllPaginated() - Registros encontrados: ${result.length} de ${total}`);
+    console.log('Registros:', result.map(r => ({ id: r.id, period: r.period, status: r.calendarStatus })));
+    
+    return [result, total];
   }
 
   async findOne(id: number): Promise<Calendar | null> {
